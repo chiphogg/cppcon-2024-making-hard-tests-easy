@@ -5,22 +5,38 @@ Notes:
 - Welcome!
 - Two kinds of audience
   - People testing functions w/complicated inputs
-    - use concrete example
+    - Testing is hard
+    - use concrete example where we made it easy
+    - Mention generic principles at the end
   - Motion planning for self driving
-    - Lucky!  Blueprint in design space
-- Mention generic principles at the end
+    - Lucky!  Clear, specific paths through design space
 
 ---
 
-## Disclaimer
+## Aurora and Me
+
+<div class="r-stack">
+<img src="./figures/aurora-truck-car.jpg">
+<div class="fragment" style="position: absolute; width: 100%; text-align: center;">
+<img src="./figures/sqb.png" style="width: 60%;">
+</div>
+</div>
 
 Notes:
 
-- May not be exactly what you would find if you went to Aurora today
-  - Interfaces evolve
-  - Changed some terms
-  - Some features are incomplete
-- The point of the talk is to communicate design principles
+- Aurora
+  - benefits of self driving, safely, quickly, broadly
+  - launching first product _this year_: self-driving trucks, Dallas to Houston
+- Me: Chip Hogg
+  - Almost 4 years at Aurora, on motion planning team, almost 9 in self driving
+  - Main contribution: making good tests easy
+
+- Disclaimer
+  - May not be exactly what you would find if you went to Aurora today
+    - Interfaces evolve
+    - Changed some terms
+    - Some features are incomplete
+  - The point of the talk is to communicate design principles
 
 ---
 
@@ -28,25 +44,55 @@ Notes:
 
 Notes:
 
-- Quickly orient on kinds of tests
-- Today's core problem: complicated inputs
+- Let's talk about tests generally.
 
 ---
 
 ## Testing Pyramid
 
+<img src="./figures/testing_pyramid/pyramid_temp.svg" style="width: 60%;">
+
 Notes:
 
 - Tests: on a spectrum
   - Unit: fine-grained, fast, isolated
-  - Integration: bring components together; a little slower
-  - End-to-end: entire system; slowest
+  - Integration: bring components together
+  - End-to-end: entire system
     - Self driving e2e examples: sim, track, on-road
-- Also: low means easy to fix, tight iteration cycles
+  - Compiler errors: maybe even faster than unit tests
+- Higher up: bigger scope, slower, more expensive
+- Lower: isolated, fast, cheap, easy to understand, tight iteration cycles
+- We're here in the middle: from big unit tests to integration tests
 
 ---
 
 ## Arrange, Act, Assert
+
+```cpp
+TEST(Florpinate, ProducesGoodStuff) {
+  //
+  // ARRANGE
+  //
+  // Create the inputs you'll need
+  //
+  const auto a = make_input_one();
+  const auto b = make_input_two();
+
+  //
+  // ACT
+  //
+  // Perform the action under test
+  //
+  const auto result = florpinate(a, b);
+
+  //
+  // ASSERT
+  //
+  // Check the properties of what you made
+  //
+  EXPECT_THAT(result.stuff(), IsGood());
+}
+```
 
 Notes:
 
@@ -60,12 +106,17 @@ Notes:
 
 ## When inputs are complicated
 
+<img src="./figures/lane-change-trajectory.png" style="width: 60%;">
+
+Example: vehicle motion history
+
+- Changing lanes
+- Accelerating
+
 Notes:
 
-- Real world functions can have complicated inputs.  Examples:
-  - Point cloud from one lidar sweep
-  - Lane graph
-  - Vehicle motion history
+- Real world functions can have complicated inputs.
+  - Example: Vehicle motion history
 - Two bad choices
   - Realistic data (hard to set up / understand)
   - Simple fake data (doesn't test much)
@@ -75,7 +126,7 @@ Notes:
 
 ---
 
-# Motion Planning Crash Course
+# Motion Planning<br>Crash Course
 
 Notes:
 
@@ -120,23 +171,104 @@ Notes:
 
 ---
 
-## Tactic: imagine source code
+## First, make the (tests) easy
 
-TODO(1): C++ source code
-TODO(2): Incrementally reveal
+<img src="./figures/kent-beck-tweet.png">
+
+<div class="fragment">
+<p>How to "make the (test) easy"?</p>
+<ol>
+  <li>Write imagined source code</li>
+  <li>Think through implementation: feasibility, usability, scope, ...</li>
+</ol>
+</div>
 
 Notes:
 
-- First, make the test easy.  (Warning: this may be hard!)  Then, write the easy test.
-  - _If the test were easy to write, what would it look like?_
-  - Let your imagination run wild!
-  - Stop, look at what you wrote, think about interfaces.  Could they work?  How?
-- A motion planning test **describes a scene**
-- First insight: map is foundational
-  - Localization, goal, actors --- all relative to map
-- Second insight: get all poses from _paths in scene_
-  - physically meaningful
-  - easy to write, easy to read
+- Kent Beck: "Make the change easy (warning: this may be hard), then make the easy change"
+  - Feels like a cheat code
+  - Writing function, notice it needs another task: doing 2 problems in your head
+    - Pause; put it aside
+    - Now only one problem; write tests
+    - Come back: now it's easy!
+    - This is the way
+- The "this may be hard" comes on a spectrum
+  - Complicated function inputs tend to live on the harder side
+- So: **how** to "make the change easy"?
+  - 1. Figure out what "easy" would even look like
+    - If you can't, no point in going further
+    - Write source code, imagine you have everything you could want
+  - 2. Look at what you wrote, judge the design
+    - Feasibility: can you see your way to implementing?
+    - Usability: easy to use correctly, hard to use incorrectly?
+    - Scope: Doesn't have to do everything!  What are core use cases, peripheral, out-of-scope...
+
+---
+
+## What would "easy" look like?
+
+<div class="r-stack">
+
+<div style="width: 100%;">
+
+```cpp
+TEST_F(MotionPlanner, PlansLaneChangeAroundSlowVehicle) {
+    const auto map = two_lane_straight_highway();  // Revisit this API...
+    const auto lane = right_lane(only_road(map));
+
+    const auto slow_car =
+        car_sketcher({nominal_path(lane), 40_m_pos})
+            .set_motion(50 * MPH)
+            .sketch();
+
+    const auto plan =
+        SceneBuilder{
+            {
+                .map = map,
+                .goal = final_pose(lane),
+                .ego_path = {nominal_path(lane), 0_m_pos},
+                .ego_motion = 65 * MPH,
+            },
+        }
+        .add_track(slow_car)
+        .run_cycle_through(RANKER);
+
+    // Out of scope for this talk...
+    EXPECT_THAT(plan, ChangesLaneTo(left_lane(only_road(map))));
+}
+```
+
+</div>
+<div class="fragment fade-in-then-out">
+  <video style="width: 90%;">
+    <source src="./figures/vis3d.webm" type="video/webm" style="width: 50%">
+  </video>
+</div>
+<div class="fragment fade-in"></div>
+</div>
+
+Notes:
+
+- What's an example motion planner test case?
+  - 2 ln hwy, 65 in R ln, car doing 50 in front, nobody else
+  - Want planner to propose a lane change
+- All planner tests: based on **scene**
+  - Key: describe the **map** (backdrop where scene takes place)
+  - Make variable for lane of interest
+- Slow car: use car "sketcher" (just enough detail, reasonable defaults)
+- Now: build the scene
+  - Constructor params: what you must supply every time
+    - Map, goal, ego path and motion
+  - Setters for everything else (add slow car)
+
+Key points we can already see:
+
+- **Map** is foundational
+- **all** positions described relative to **physically meaningful paths**: no x/y/z/theta
+
+Source code: high callsite readability
+- Can picture scene... but just in case!
+- Stretch goal: Interactive 3D vis
 
 ---
 
@@ -153,14 +285,19 @@ Notes:
 
 ## Level 0: units library!
 
+<div class="r-stack">
+<img style="width: 90%;" src="./figures/cppcon_2021.png">
+<img style="width: 90%;" class="fragment fade-in-then-out" data-fragment-index="1" src="./figures/cppcon_2023.png">
+</div>
+
 Notes:
 
 - Built for _these libraries_!
-  - ...but brought in other stakeholders
+  - ...but brought in other stakeholders across Aurora
 - CppCon 2021: shared what we learned
   - No better library available
 - CppCon 2023: we open sourced it!
-  - Still the best pre-C++20 units library today!
+  - Personal opinion: _still_ the best C++14 or C++17 units library today!
 
 ---
 

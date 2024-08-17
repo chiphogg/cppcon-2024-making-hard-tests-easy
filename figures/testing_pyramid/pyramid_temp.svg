@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg5"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs2" />
+  <g
+     id="layer1">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:12.7405px;line-height:1.25;font-family:sans-serif;fill:#bbbeb9;fill-opacity:1;stroke:none;stroke-width:0.318513"
+       x="142.27219"
+       y="88.601059"
+       id="text31064"><tspan
+         id="tspan31062"
+         style="text-align:center;text-anchor:middle;fill:#bbbeb9;fill-opacity:1;stroke-width:0.318513"
+         x="142.27219"
+         y="88.601059">e2e</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 15.875,121.70833 63.499999,42.333333 111.125,121.70833 Z"
+       id="path81" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 31.75,95.249999 H 95.249999"
+       id="path83" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 47.624999,68.791666 h 31.75"
+       id="path85" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 15.875,121.70833 0,148.16666 l 127,1e-5 -15.875,-26.45834"
+       id="path5384" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:8.42362px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.210591"
+       x="62.907784"
+       y="93.654488"
+       id="text13939"><tspan
+         id="tspan13937"
+         style="text-align:center;text-anchor:middle;stroke-width:0.210591"
+         x="62.907784"
+         y="93.654488">Integration</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:8.42362px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.210591"
+       x="62.907784"
+       y="66.240913"
+       id="text14727"><tspan
+         id="tspan14725"
+         style="text-align:center;text-anchor:middle;stroke-width:0.210591"
+         x="62.907784"
+         y="66.240913">e2e</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:8.42362px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.210591"
+       x="62.907784"
+       y="118.90667"
+       id="text14833"><tspan
+         id="tspan14831"
+         style="text-align:center;text-anchor:middle;stroke-width:0.210591"
+         x="62.907784"
+         y="118.90667">Unit test</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:8.42362px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.210591"
+       x="62.907784"
+       y="146.05788"
+       id="text17567"><tspan
+         id="tspan17565"
+         style="text-align:center;text-anchor:middle;stroke-width:0.210591"
+         x="62.907784"
+         y="146.05788">Compiler errors</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:8.26346px;line-height:1.25;font-family:sans-serif;text-align:center;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.206587"
+       x="160.88339"
+       y="155.50783"
+       id="text26167"><tspan
+         id="tspan26165"
+         style="text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;stroke-width:0.206587"
+         x="160.88339"
+         y="155.50783" /></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 119.0625,95.249999 127,82.020832 l 7.9375,-13.229166 7.9375,-13.229167 7.9375,13.229167 7.9375,13.229166 7.9375,13.229167 z"
+       id="path29982" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 127,82.020832 h 31.75 l -7.9375,-13.229166 h -15.875 z"
+       id="path29984" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.2221px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.105553"
+       x="142.93341"
+       y="67.835709"
+       id="text30068"><tspan
+         id="tspan30066"
+         style="text-align:center;text-anchor:middle;stroke-width:0.105553"
+         x="142.93341"
+         y="67.835709">road</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.2221px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.105553"
+       x="142.93341"
+       y="94.241982"
+       id="text30174"><tspan
+         id="tspan30172"
+         style="text-align:center;text-anchor:middle;stroke-width:0.105553"
+         x="142.93341"
+         y="94.241982">simulation</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.2221px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.105553"
+       x="142.93341"
+       y="80.757202"
+       id="text30958"><tspan
+         id="tspan30956"
+         style="text-align:center;text-anchor:middle;stroke-width:0.105553"
+         x="142.93341"
+         y="80.757202">track</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 119.0625,95.249999 47.624999,68.791666 63.499999,42.333333 142.875,55.562499 Z"
+       id="path32568" />
+  </g>
+</svg>
