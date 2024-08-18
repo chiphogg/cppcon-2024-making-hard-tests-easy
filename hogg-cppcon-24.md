@@ -301,20 +301,108 @@ Notes:
 
 ---
 
-# Level 1: Poses, Paths, and Motions
+# Level 1:<br>Poses, Paths, and Motions
 
 ---
 
 ## `Pose3D`
 
+<div class="container">
+
+<div class="r-stack">
+<div class="fragment fade-in-then-out" data-fragment-index="1">
+
+```cpp
+
+
+
+
+Pose3D pose = get_starting_pose();
+
+
+
+
+```
+
+</div>
+
+<div class="fragment fade-in-then-out" data-fragment-index="2">
+
+```cpp
+
+
+
+
+Pose3D pose = get_starting_pose()
+    .move_forward(20 * m);
+
+
+
+```
+
+</div>
+
+<div class="fragment fade-in-then-out" data-fragment-index="3">
+
+```cpp
+
+
+
+
+Pose3D pose = get_starting_pose()
+    .move_forward(20 * m)
+    .turn_right();
+
+
+```
+
+</div>
+
+<div class="fragment fade-in-then-out" data-fragment-index="4">
+
+```cpp
+const auto curvature =
+    BodyFrameCurvature{}
+        .set_yaw_left_rate(0.05 * rad / m);
+
+Pose3D pose = get_starting_pose()
+    .move_forward(20 * m)
+    .turn_right()
+    .move_forward(20 * m, curvature);
+```
+
+</div>
+</div>
+
+<div class="pose">
+
+<h4 class="fragment fade-in" data-fragment-index="1">Top:</h4>
+<div class="r-stack">
+<img class="fragment fade-in" src="./figures/pose/pose_top_01.png" data-fragment-index="1">
+<img class="fragment fade-in" src="./figures/pose/pose_top_02.png" data-fragment-index="2">
+<img class="fragment fade-in" src="./figures/pose/pose_top_03.png" data-fragment-index="3">
+<img class="fragment fade-in" src="./figures/pose/pose_top_04.png" data-fragment-index="4">
+</div>
+
+<h4 class="fragment fade-in" data-fragment-index="1">Perspective:</h4>
+<div class="r-stack">
+<img class="fragment fade-in" src="./figures/pose/pose_persp_01.png" data-fragment-index="1">
+<img class="fragment fade-in" src="./figures/pose/pose_persp_02.png" data-fragment-index="2">
+<img class="fragment fade-in" src="./figures/pose/pose_persp_03.png" data-fragment-index="3">
+<img class="fragment fade-in" src="./figures/pose/pose_persp_04.png" data-fragment-index="4">
+</div>
+
+</div>
+
+</div>
+
 Notes:
 
 - "Pose" means "where": position plus orientation
-- Need _readable related poses_
-  - `.turn_left()`
-  - `.move_forward()`
-- You can drive this little thing all around!
-- **Point:** easy to _write_, easy to _read_.
+  - Key capability: _chainable_ APIs to make _related_ poses
+
+- Given starting pose, easy to make new one in readable way
+  - ...where does that "starting pose" come from though?
 
 ---
 

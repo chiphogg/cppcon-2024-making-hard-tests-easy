@@ -6,3 +6,29 @@
 .reveal code {
   max-height: 100% !important;
 }
+
+.slides section fragment {
+  transition: all 1.5s ease;
+}
+
+.container {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+}
+
+.container div {
+  width: 100%;
+}
+
+.container div code {
+  width: 100%;
+}
+
+.pose > h4 {
+  margin-bottom: 0;
+}
+
+.pose > img {
+  width: 80%;
+}
