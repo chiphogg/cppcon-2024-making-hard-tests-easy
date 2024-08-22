@@ -408,81 +408,308 @@ Notes:
 
 ## Poses come from paths
 
+<div class="r-stack">
+<img src="./figures/pose-from-path/path_01.png">
+<img class="fragment fade-in" src="./figures/pose-from-path/path_02.png" data-fragment-index="1">
+<img class="fragment fade-in" src="./figures/pose-from-path/path_03.png" data-fragment-index="2">
+<img class="fragment fade-in" src="./figures/pose-from-path/path_04.png" data-fragment-index="3">
+</div>
+
 Notes:
 
 - Ironclad rule: get **poses** from **meaningful paths in scene**
-  - No x/y/z/theta.  Ever!  I will change it when you're not looking
+  - No x/y/z/theta.  Ever!
+    - I will move the origin when you're not looking
+    - Many bad tests will fail; all good tests will still pass
+- Here's a path: right boundary of right lane of road
+- Give it a position, get a pose, move it to where you want
+
+
+old:
 - Path object, `Ribbon`: map along-path position onto pose
+  - `_m_pos` is our position type
+  - "Ribbon", mathematically: a 3D path, with a surface orientation attached
   - "Road-optimized": more than just poses
-  - Consider curved parallel paths
+  - Consider the following...
+
+---
+
+## Danger: curves ahead
+
+<div class="r-stack">
+<img src="./figures/dangerous-curves/path_01.png">
+<img class="fragment fade-in" src="./figures/dangerous-curves/path_02.png" data-fragment-index="1">
+<img class="fragment fade-in" src="./figures/dangerous-curves/path_03.png" data-fragment-index="2">
+<img class="fragment fade-in" src="./figures/dangerous-curves/path_04.png" data-fragment-index="3">
+</div>
+
+Notes:
+
+- For path like right boundary, also have left boundary
+- Try to line them up: dilemma!
+- Natural approach: positions get out of alignment (inside track is shorter)
+- Can force-align: but then position differences aren't accurate distances!
+- WDYT?  First approach?  Second?  Any strong opinions?
+
+- Good news: real world has this problem too
+  - Can use same solution: mile markers
+  - Positions are just labels for points
+  - Can't "add" two positions (like chrono `time_point`)
+  - Subtracting _positions_ gives a _displacement_
+    - still _approximately_ correct despite curvature
+- Now we can appreciate our path type: `Ribbon`
 
 ---
 
 ## `Ribbon`: road-optimized path
 
+<div class="r-stack">
+<img src="./figures/ribbon-is-road-optimized/ribbon_01.png">
+<img class="fragment fade-in" src="./figures/ribbon-is-road-optimized/ribbon_02.png" data-fragment-index="1">
+<img class="fragment fade-in" src="./figures/ribbon-is-road-optimized/ribbon_03.png" data-fragment-index="2">
+</div>
+
 Notes:
 
-- Same solution as real world: "mile markers"
-  - Index path with "position": affine space type
-    - Like `time_point` from `std::chrono`
-    - Separate type helps distinguish points, from distances
-    - "Mile marker math"
-- `Ribbon` extra responsibilities:
-  - Map between "position differences" and physical distances
-    - `.advance()`
-    - `.geodesic_displacement()`
-  - Make laterally offset **aligned** paths
+- Mathematically, "Ribbon" = 3D path + surface orientation
+  - pose-at-each-position, where pose points along path, is equivalent
+- `Ribbon` is "road-optimized".  What does that mean?
+  - Translates between "position differences" and "real physical displacements"
+  - Let's take a point `p`, at the 10 meter position.
+  - Path can Advance by 10 meters
+    - get 21.8 meter position (not just 20)
+  - Measure along-path displacement, with "geodesic displacement", get just 8.5 meters
 
 ---
 
-## Aside: interface benefits
+## Aside: hiding polymorphism
+
+<div class="container">
+<div>
+
+```cpp
+class RibbonImplementation {
+ public:
+  // Map: position -> pose
+  virtual Pose3D pose_at(PositionD s) const = 0;
+
+  // Advance by a physical distance.
+  virtual PositionD advance(
+    PositionD s, DisplacementD distance) const = 0;
+
+  // Measure physical along-path distance.
+  virtual DisplacementD geodesic_displacement(
+    PositionD start, PositionD end) const = 0;
+};
+```
+
+</div>
+<div class="r-stack">
+<div class="fragment fade-in" data-fragment-index="1">
+
+```cpp
+class Ribbon {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ private:
+  std::shared_ptr<const RibbonImplementation> impl_;
+};
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="2">
+
+```cpp
+class Ribbon {
+ public:
+    Pose3D pose_at(PositionD s) const {
+      return impl_->pose_at(s);
+    }
+
+    PositionD advance(
+        PositionD s, DisplacementD d) const {
+      return impl_->advance(s, d);
+    }
+
+    DisplacementD geodesic_displacement(
+        PositionD start, PositionD end) const {
+      return impl_->geodesic_displacement(start, end);
+    }
+
+ private:
+  std::shared_ptr<const RibbonImplementation> impl_;
+};
+```
+
+</div>
+</div>
+</div>
+
+<!--
+<div class="fragment fade-in" data-fragment-index="3">
+
+```cpp
+Ribbon get_flat_ribbon_turning_left(CurvatureD k, Pose3D origin_pose) {
+    // The origin pose is really arbitrary, as long as its orientation has no pitch or roll.
+    return make_ribbon<ConstantLeftTurnRateRibbonFrom>(origin_pose, k);
+}
+```
+
+</div>
+-->
 
 Notes:
 
-- Well chosen interface is force multiplier!
-  - New kinds of `Ribbon`
-    - `ConstantCurvatureRibbon`
-    - `ConcatenatedRibbon`
-    - `SplineRibbon`
-  - New use cases: we can build all kinds of things!
-    - Actor trajectory
-    - Synthetic maps
-    - Anything with a path
-  - Implementation becomes extremely easy (`make_curved_path`, `make_straight_path` examples)
-  - Every new implementation makes every use case richer
-
----
-
-## Aside (2): lightweight value types
-
-Notes:
-
-- Can hide the polymorphism
+- Ribbon is polymorphic
+  - Implementation class w/ pure virtuals
+  - End users don't see polymorphism!
+- shared-ptr-to-const has **value semantics**, size of shared-ptr for any complexity
+  - shared-ptr-to-non-const is hidden global variable :(
+  - **lightweight value types**.
+  - Immutable
+  - pass all around program, can't get it wrong
+- Implement API functions: delegate
+- NOTE: the implementation also provides the curvature; not shown here
 
 ---
 
 ## `Motion`: speed profiles
 
+$dt \rightarrow \left(s, \frac{ds}{dt}, \frac{d^2s}{dt^2}\right)$
+
+<div class="container">
+<div class="r-stack nolinenum">
+<div class="fragment fade-in-then-out" data-fragment-index="1">
+
+```cpp
+class Motion {
+ public:
+  explicit Motion(
+    std::shared_ptr<const MotionImplementation> impl);
+
+
+
+
+
+ private:
+  std::shared_ptr<const MotionImplementation> impl_;
+};
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="2">
+
+```cpp [1,8,12]
+class Motion {
+ public:
+  explicit Motion(
+    std::shared_ptr<const MotionImplementation> impl);
+
+
+
+  MotionSnapshot snapshot_at(DurationD dt) const;
+
+ private:
+  std::shared_ptr<const MotionImplementation> impl_;
+};
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="3">
+
+```cpp [6]
+class Motion {
+ public:
+  explicit Motion(
+    std::shared_ptr<const MotionImplementation> impl);
+
+  Motion(VelocityD constant_speed);
+
+  MotionSnapshot snapshot_at(DurationD dt) const;
+
+ private:
+  std::shared_ptr<const MotionImplementation> impl_;
+};
+```
+
+</div>
+</div>
+
+<div class="r-stack nolinenum">
+<div class="fragment fade-in-then-out" data-fragment-index="2">
+
+```cpp
+struct MotionSnapshot {
+  DisplacementD displacement = ZERO;
+  VelocityD velocity = ZERO;
+  AccelerationD acceleration = ZERO;
+};
+
+
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="3">
+
+```cpp [6]
+struct MotionSnapshot {
+  DisplacementD displacement = ZERO;
+  VelocityD velocity = ZERO;
+  AccelerationD acceleration = ZERO;
+};
+
+
+```
+
+</div>
+</div>
+</div>
+
 Notes:
 
 - `Motion` maps time onto along-path displacement and its derivatives
-  - `MotionSnapshot`: displacement, velocity, acceleration
+- Use same strategy: shared-ptr-to-const, value semantics, hide polymorphism
+- Returns `MotionSnapshot`: along-path displacement, velocity, acceleration
 - Implicitly constructible from speed
   - Covers 95% of use cases
   - Interface should take a motion; you can pass `20 * m / s`, `65 * MPH`, etc.
-- Easy to make others for specific use cases
-  - `braking_from(...)` example
-- Caveat: "constant acceleration"
-  - Easy to implement, but nonsense at far `dt` values
-  - Much rather be reasonable when queried at any time
+  - Later on, more complicated motions like braking:
+    - Make builders.  Add functionality with no extra cost
 
 ---
 
 ## `Ribbon` and `Motion` compose
 
+`Motion`: $\ \ \ dt \rightarrow \left(s, \frac{ds}{dt}, \frac{d^2s}{dt^2}\right)$
+
+`Ribbon`: $\ \ \ s \rightarrow \left(\text{pose}, \text{curvature}\right)$
+
+<div class="fragment fade-in">
+
+```cpp
+const auto [ds, v, a] = motion.snapshot_at(dt);
+const auto [pose, curvature] = ribbon.point_at(p + ds);
+```
+
+</div>
+
 Notes:
 
 - (Explain mapping)
+  - Note: we're using the fuller, curvature API here
 - A scene described in terms of `Ribbon` and `Motion` is not static!
   - Can query at near-past and near-future times!
   - History; predictions
