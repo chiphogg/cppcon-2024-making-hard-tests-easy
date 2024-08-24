@@ -728,14 +728,14 @@ Notes:
 
 <div class="container">
 <div class="fragment fade-in" data-fragment-index="1">
-<h4>Map Sketch</h4>
+<h3>Map Sketch</h3>
 <div>
 <img src="./figures/maps-basins/sketch.png">
 </div>
 </div>
 
 <div class="fragment fade-in" data-fragment-index="2">
-<h4>Backdrops</h4>
+<h3>Backdrops</h3>
 <div class="r-stack">
 <img class="fragment fade-in" data-fragment-index="2" src="./figures/maps-basins/real_maps.png">
 <img class="fragment fade-in" data-fragment-index="3" src="./figures/maps-basins/real_maps_lane_boundary.png">
@@ -914,7 +914,7 @@ Notes:
 
 <div class="container">
 <div class="fragment fade-in" data-fragment-index="1">
-<h4>Test Authors</h4>
+<h3>Test Authors</h3>
 
 - Known road
 - APIs emphasize _callsite readability_
@@ -1029,7 +1029,7 @@ speed_limit(road);
 </div>
 
 <div class="fragment fade-in" data-fragment-index="5">
-<h4>Libraries</h4>
+<h3>Libraries</h3>
 
 - Must handle _all possible roads_
 - Iterate over lanes
@@ -1110,15 +1110,41 @@ Notes:
 
 - Two clients, two sets of interfaces
 - Test authors know their road
+  - Pick a named feature you know is there
+  - Error if it's not, _or if you chose a weird name_
+- Test _libraries_ need to handle _all possible_ roads
+  - These interfaces _iterate_ over lanes, _iterate_ over regions in a lane, etc.
+- The tests you can make depend on what libraries you have on the right side...
 
-    - Pick a named feature you know is there
-    - Error if it's not, _or if you chose a weird name_
-  - Test _libraries_ need to handle _all possible_ roads
-    - These interfaces _iterate_ over lanes, _iterate_ over regions in a lane, etc.
-- _Road sketch_ is **not a road**
-  - It's a high level **description** of a road, for **human test authors**
-  - For _full usage_, need something that can make a map that is _consistent with_ this description
-  - Could still use this for medium-complexity needs
+---
+
+## Tests that `RoadSketch` unlocks
+
+<div class="r-stack">
+<img class="fragment fade-in-then-out" data-fragment-index="1" src="./figures/road-sketch-unlocks/unit-tests.svg">
+<div class="fragment fade-in-then-out" data-fragment-index="2">
+  <video style="width: 90%;">
+    <source src="./figures/road-sketch-unlocks/streams.webm" type="video/webm" style="width: 50%">
+  </video>
+</div>
+<img class="fragment fade-in-then-out" data-fragment-index="3" src="./figures/road-sketch-unlocks/unit-tests.svg">
+<img class="fragment fade-in-then-out" data-fragment-index="4" src="./figures/road-sketch-unlocks/full-planner-tests-01.svg">
+<img class="fragment fade-in-then-out" data-fragment-index="5" src="./figures/road-sketch-unlocks/full-planner-tests-02.svg">
+<img class="fragment fade-in-then-out" data-fragment-index="6" src="./figures/road-sketch-unlocks/full-planner-tests-03.svg">
+</div>
+
+Notes:
+
+- MP uses optimized rep for lanes/paths, called "streams"
+  - Pretty easy to make streams from road sketch
+  - Unlocks unit tests for many functions
+    - Legit complicated inputs, made way easier!
+
+- Holy grail integration test: "just run the planner"
+  - Need to make a full AV map that is **consistent** with road sketch
+    - Remember: it's not a road, just a high level description
+  - No map maker, no planner tests
+  - Feasible, but didn't do it b/c of _opportunity cost_
 
 ---
 

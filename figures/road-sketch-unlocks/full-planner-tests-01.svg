@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="169.33333mm"
+   height="174.625mm"
+   viewBox="0 0 169.33333 174.625"
+   version="1.1"
+   id="svg5"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs2">
+    <marker
+       style="overflow:visible;"
+       id="Arrow1Mend"
+       refX="0.0"
+       refY="0.0"
+       orient="auto">
+      <path
+         transform="scale(0.4) rotate(180) translate(10,0)"
+         style="fill-rule:evenodd;fill:context-stroke;stroke:context-stroke;stroke-width:1.0pt;"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         id="path9802" />
+    </marker>
+    <marker
+       style="overflow:visible;"
+       id="Arrow1Send"
+       refX="0.0"
+       refY="0.0"
+       orient="auto">
+      <path
+         transform="scale(0.2) rotate(180) translate(6,0)"
+         style="fill-rule:evenodd;fill:context-stroke;stroke:context-stroke;stroke-width:1.0pt;"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         id="path9808" />
+    </marker>
+  </defs>
+  <g
+     id="layer1"
+     transform="translate(-26.458334,-63.5)">
+    <g
+       id="g7821"
+       transform="translate(0,39.917498)">
+      <rect
+         style="fill:#b3b0f7;fill-opacity:1;stroke:#000000;stroke-width:0.79375;stroke-opacity:1"
+         id="rect7422"
+         width="74.083328"
+         height="31.749992"
+         x="42.333336"
+         y="155.87418" />
+      <text
+         xml:space="preserve"
+         style="font-size:10.5833px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.264583"
+         x="47.625"
+         y="174.625"
+         id="text3578"><tspan
+           id="tspan3576"
+           style="stroke-width:0.264583"
+           x="47.625"
+           y="174.625">RoadSketch</tspan></text>
+    </g>
+    <g
+       id="g7829"
+       transform="translate(92.591606,-27.926351)">
+      <rect
+         style="fill:#f7d8b0;fill-opacity:1;stroke:#000000;stroke-width:0.79375;stroke-opacity:1"
+         id="rect7823"
+         width="52.916668"
+         height="47.625004"
+         x="39.700062"
+         y="154.92635" />
+      <text
+         xml:space="preserve"
+         style="font-size:10.5833px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.264583"
+         x="47.625"
+         y="174.625"
+         id="text7827"><tspan
+           id="tspan7825"
+           style="stroke-width:0.264583;font-weight:bold"
+           x="47.625"
+           y="174.625">Map</tspan><tspan
+           style="stroke-width:0.264583"
+           x="47.625"
+           y="187.85413"
+           id="tspan8123">Maker</tspan></text>
+    </g>
+    <g
+       id="g8392"
+       transform="translate(-2.6113073,-82.332992)">
+      <rect
+         style="fill:#b3b0f7;fill-opacity:1;stroke:#000000;stroke-width:0.79375;stroke-opacity:1"
+         id="rect8384"
+         width="92.604172"
+         height="42.333344"
+         x="39.652973"
+         y="156.41632" />
+      <text
+         xml:space="preserve"
+         style="font-size:10.5833px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.264583"
+         x="47.625"
+         y="174.625"
+         id="text8390"><tspan
+           style="stroke-width:0.264583;font-weight:bold"
+           x="47.625"
+           y="174.625"
+           id="tspan8388">Full Planner</tspan><tspan
+           style="stroke-width:0.264583"
+           x="47.625"
+           y="187.85413"
+           id="tspan8832">Tests</tspan></text>
+    </g>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.32292;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Mend)"
+       d="m 58.208334,116.41667 0,76.72916"
+       id="path9693" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.32292;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Mend)"
+       d="m 145.25625,174.88958 -26.72292,19.31459"
+       id="path10282" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.32292;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Mend)"
+       d="M 82.020834,116.68125 129.64583,134.9375"
+       id="path10459" />
+  </g>
+</svg>
