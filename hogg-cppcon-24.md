@@ -913,15 +913,195 @@ Notes:
 ## Two clients for sketches
 
 <div class="container">
-<div>
+<div class="fragment fade-in" data-fragment-index="1">
 <h4>Test Authors</h4>
+
+- Known road
+- APIs emphasize _callsite readability_
+  - Use errors liberally<br>as nudges
+
+<div class="r-stack nolinenum">
+<div class="fragment fade-in-then-out" data-fragment-index="2">
+
+```cpp
+right_lane(road); // Or, instead:
+only_lane(road);
+
+
+
+
+
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="3">
+
+```cpp [4]
+right_lane(road); // Or, instead:
+only_lane(road);
+
+left_neighbor(right_lane(road));
+
+
+
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="4">
+
+```cpp [6,]
+right_lane(road); // Or, instead:
+only_lane(road);
+
+left_neighbor(right_lane(road));
+
+speed_limit(road);
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="5">
+
+```cpp
+right_lane(road); // Or, instead:
+only_lane(road);
+
+left_neighbor(right_lane(road));
+
+speed_limit(road);
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="6">
+
+```cpp [1-2]
+right_lane(road); // Or, instead:
+only_lane(road);
+
+left_neighbor(right_lane(road));
+
+speed_limit(road);
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="7">
+
+```cpp [3]
+right_lane(road); // Or, instead:
+only_lane(road);
+
+left_neighbor(right_lane(road));
+
+speed_limit(road);
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="8">
+
+```cpp [4]
+right_lane(road); // Or, instead:
+only_lane(road);
+
+left_neighbor(right_lane(road));
+
+speed_limit(road);
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="9">
+
+```cpp [6]
+right_lane(road); // Or, instead:
+only_lane(road);
+
+left_neighbor(right_lane(road));
+
+speed_limit(road);
+```
+
+</div>
+</div>
+
 </div>
 
 <div>
+<img src="./figures/map-sketch/persp_08.png">
+<img src="./figures/map-sketch/top_08.png">
 </div>
 
-<div>
+<div class="fragment fade-in" data-fragment-index="5">
 <h4>Libraries</h4>
+
+- Must handle _all possible roads_
+- Iterate over lanes
+- Partitioned into constant regions
+- **"Clunky, yet precise"**
+
+<div class="r-stack nolinenum">
+<div class="fragment fade-in-then-out" data-fragment-index="6">
+
+```cpp
+for (const auto lane : road) {
+
+
+
+
+
+
+
+
+}
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="7">
+
+```cpp [2-9]
+for (const auto lane : road) {
+  auto positions =
+    sample_positions(lane);
+
+  for (const auto p : positions) {
+
+
+
+  }
+}
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="8">
+
+```cpp [6]
+for (const auto lane : road) {
+  auto positions =
+    sample_positions(lane);
+
+  for (const auto p : positions) {
+    left_neighbor_point_at(p, lane);
+
+
+  }
+}
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="9">
+
+```cpp [8]
+for (const auto lane : road) {
+  auto positions =
+    sample_positions(lane);
+
+  for (const auto p : positions) {
+    left_neighbor_point_at(p, lane);
+
+    speed_limit_point_at(p, lane);
+  }
+}
+```
+
+</div>
+</div>
 </div>
 
 </div>
@@ -929,7 +1109,8 @@ Notes:
 Notes:
 
 - Two clients, two sets of interfaces
-  - Test authors know their road
+- Test authors know their road
+
     - Pick a named feature you know is there
     - Error if it's not, _or if you chose a weird name_
   - Test _libraries_ need to handle _all possible_ roads
