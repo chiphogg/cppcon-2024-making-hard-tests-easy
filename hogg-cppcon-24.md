@@ -726,6 +726,23 @@ Notes:
 
 ## Two Basins in Design Space
 
+<div class="container">
+<div class="fragment fade-in" data-fragment-index="1">
+<h4>Map Sketch</h4>
+<div>
+<img src="./figures/maps-basins/sketch.png">
+</div>
+</div>
+
+<div class="fragment fade-in" data-fragment-index="2">
+<h4>Backdrops</h4>
+<div class="r-stack">
+<img class="fragment fade-in" data-fragment-index="2" src="./figures/maps-basins/real_maps.png">
+<img class="fragment fade-in" data-fragment-index="3" src="./figures/maps-basins/real_maps_lane_boundary.png">
+</div>
+</div>
+</div>
+
 Notes:
 
 - Map Sketch: fully synthetic
@@ -735,13 +752,188 @@ Notes:
 
 ## Map Sketch
 
+<div class="container">
+
+<div class="r-stack">
+<div class="fragment fade-in-then-out" data-fragment-index="1">
+
+```cpp
+const auto road =
+  RoadSketcher{}
+
+
+
+
+
+
+    .finish_lane_and_road();
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="2">
+
+```cpp
+const auto road =
+  RoadSketcher{}
+
+
+    .finish_lane_and_start_another()
+
+
+
+    .finish_lane_and_road();
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="3">
+
+```cpp
+const auto road =
+  RoadSketcher{}
+
+
+    .finish_lane_and_start_another()
+    .finish_lane_and_start_another()
+
+
+    .finish_lane_and_road();
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="4">
+
+```cpp
+const auto road =
+  RoadSketcher{}
+    .define_road_frame(flat_ribbon_turning_left)
+
+    .finish_lane_and_start_another()
+    .finish_lane_and_start_another()
+
+
+    .finish_lane_and_road();
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="5">
+
+```cpp
+const auto road =
+  RoadSketcher{}
+    .define_road_frame(flat_ribbon_turning_left)
+    .set_left_shoulder_width(4 * m)
+    .finish_lane_and_start_another()
+    .finish_lane_and_start_another()
+
+
+    .finish_lane_and_road();
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="6">
+
+```cpp
+const auto road =
+  RoadSketcher{}
+    .define_road_frame(flat_ribbon_turning_left)
+    .set_left_shoulder_width(4 * m)
+    .finish_lane_and_start_another()
+    .finish_lane_and_start_another(
+      NO_LC_AVAILABILITY)
+
+    .finish_lane_and_road();
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="7">
+
+```cpp
+const auto road =
+  RoadSketcher{}
+    .define_road_frame(flat_ribbon_turning_left)
+    .set_left_shoulder_width(4 * m)
+    .finish_lane_and_start_another()
+    .finish_lane_and_start_another(
+      begin_lc_availability(100_m_pos))
+
+    .finish_lane_and_road();
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="8">
+
+```cpp
+const auto road =
+  RoadSketcher{}
+    .define_road_frame(flat_ribbon_turning_left)
+    .set_left_shoulder_width(4 * m)
+    .finish_lane_and_start_another()
+    .finish_lane_and_start_another(
+      begin_lc_availability(100_m_pos))
+    .convert_to_onramp_at(50_m_pos)
+    .finish_lane_and_road();
+```
+
+</div>
+</div>
+
+<div>
+<div class="r-stack" style="width: 80%">
+<img class="fragment fade-in" data-fragment-index="1" src="./figures/map-sketch/persp_01.png">
+<img class="fragment fade-in" data-fragment-index="2" src="./figures/map-sketch/persp_02.png">
+<img class="fragment fade-in" data-fragment-index="3" src="./figures/map-sketch/persp_03.png">
+<img class="fragment fade-in" data-fragment-index="4" src="./figures/map-sketch/persp_04.png">
+<img class="fragment fade-in" data-fragment-index="5" src="./figures/map-sketch/persp_05.png">
+<img class="fragment fade-in" data-fragment-index="6" src="./figures/map-sketch/persp_06.png">
+<img class="fragment fade-in" data-fragment-index="7" src="./figures/map-sketch/persp_07.png">
+<img class="fragment fade-in" data-fragment-index="8" src="./figures/map-sketch/persp_08.png">
+</div>
+<div class="r-stack" style="width: 80%">
+<img class="fragment fade-in" data-fragment-index="1" src="./figures/map-sketch/top_01.png">
+<img class="fragment fade-in" data-fragment-index="2" src="./figures/map-sketch/top_02.png">
+<img class="fragment fade-in" data-fragment-index="3" src="./figures/map-sketch/top_03.png">
+<img class="fragment fade-in" data-fragment-index="4" src="./figures/map-sketch/top_04.png">
+<img class="fragment fade-in" data-fragment-index="5" src="./figures/map-sketch/top_05.png">
+<img class="fragment fade-in" data-fragment-index="6" src="./figures/map-sketch/top_06.png">
+<img class="fragment fade-in" data-fragment-index="7" src="./figures/map-sketch/top_07.png">
+<img class="fragment fade-in" data-fragment-index="8" src="./figures/map-sketch/top_08.png">
+</div>
+</div>
+
+</div>
+
 Notes:
 
 - Road sketcher: readable synthetic roads
   - Number of lanes is number of times you say "finish lane"
-  - Add a shoulder
-  - Define the road frame
-  - Set lane change availability
+- That's how you **make** it.  To **use** it...
+
+---
+
+## Two clients for sketches
+
+<div class="container">
+<div>
+<h4>Test Authors</h4>
+</div>
+
+<div>
+</div>
+
+<div>
+<h4>Libraries</h4>
+</div>
+
+</div>
+
+Notes:
+
+- Two clients, two sets of interfaces
+  - Test authors know their road
+    - Pick a named feature you know is there
+    - Error if it's not, _or if you chose a weird name_
+  - Test _libraries_ need to handle _all possible_ roads
+    - These interfaces _iterate_ over lanes, _iterate_ over regions in a lane, etc.
 - _Road sketch_ is **not a road**
   - It's a high level **description** of a road, for **human test authors**
   - For _full usage_, need something that can make a map that is _consistent with_ this description
