@@ -1150,27 +1150,151 @@ Notes:
 
 ## Backdrops
 
+<div class="r-stack">
+<div class="container">
+<div>
+<img src="./figures/maps-basins/real_maps_lane_boundary.png">
+</div>
+
+<div class="r-stack nolinenum">
+<div class="fragment fade-in-then-out" data-fragment-index="1">
+
+```cpp
+class Hwy3LanesWExit {
+ public:
+  Hwy3LanesWExit();
+
+  friend Lane left_lane(const Hwy3LanesWExit &h) {
+    return h.left_;
+  }
+
+  friend Position split_point(const Hwy3LanesWExit&) {
+    return 0_m_pos;
+  }
+
+  // ...
+
+ private:
+  AVMap map_;
+
+  Lane left_;
+  Lane center_;
+  Lane right_;
+  Lane exit;
+
+  PositionD start_position_;
+};
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="2">
+
+```cpp
+class Hwy3LanesWExit {
+ public:
+  Hwy3LanesWExit();
+
+  friend Lane left_lane(const Hwy3LanesWExit &h) {
+    return h.left_;
+  }
+
+  friend Position split_point(const Hwy3LanesWExit&) {
+    return 0_m_pos;
+  }
+
+  // ...
+
+ private:
+  AVMap map_;
+
+  Lane left_;
+  Lane center_;
+  Lane right_;
+  Lane exit;
+
+  PositionD start_position_;
+};
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="3">
+
+```cpp
+Hwy3LanesWExit::Hwy3LanesWExit() :
+  map_{fetch_map("hwy_3_lanes_w_exit"), "f7a4fff3"},
+  left_{
+    .map=map_,
+    .path={"a43b8847", "cd3eede8", "07d85409"},
+    .left_bound={"45493fb2", "1e963a78", "dff6e747"},
+    .right_bound={"e45657dd", "e196e064", "7efc19fc"},
+  },
+  center_{
+    .map=map_,
+    .path={"9ba58c68", "7e04b76a", "25877bfd"},
+    .left_bound={"18389e4c", "95ad65dd", "8d544a9b"},
+    .right_bound={"66e3b528", "6280f64d", "ec46cb72"},
+    .align_to=left_,
+  },
+  right_{ /* ... */ },
+  exit_{ /* ... */ },
+  start_position_{path_length({"a43b8847", "cd3eede8"})}
+  {}
+```
+
+</div>
+</div>
+</div>
+
+<div>
+<img class="fragment fade-in-then-out" data-fragment-index="2" src="./figures/backdrops/graph.png" style="width: 70%;">
+</div>
+</div>
+
 Notes:
 
-- Backdrop: not a scene, but the "backdrop" where a scene _takes place_
-  - Contains a real map
-  - Also contains well named paths (left boundary of right lane, etc.)
-  - Has its own unit tests to make sure paths match up with map data
+- Backdrop: two jobs: hold real map; provide nice path objects
+  - What _is_ it?
+  - class with data members you'd expect
+  - hidden friend functions
+- To construct:
+  - Look at topological graph from map
+  - Find boundaries and paths
+  - Align subsequent paths
+  - Unit tests!
+- Labor intensive, but gives full map
 
 ---
 
 ## Comparison
 
-Notes:
+<table>
+  <tr>
+    <th></th>
+    <th>Map Sketch</th>
+    <th>Backdrops</th>
+  </tr>
+  <tr>
+    <td>Using</td>
+    <td class="good">Easy</td>
+    <td class="good">Easy</td>
+  </tr>
+  <tr>
+    <td>Making</td>
+    <td class="good">Easy</td>
+    <td class="poor">Very labor intensive</td>
+  </tr>
+  <tr>
+    <td>Fidelity</td>
+    <td class="fair">OK, but needs big investment</td>
+    <td class="good">Perfect</td>
+  </tr>
+  <tr>
+    <td>Startup cost</td>
+    <td class="fair">Moderate (or high for full maps)</td>
+    <td class="good">Low technical risk</td>
+  </tr>
+</table>
 
-- Using map
-  - Easy for both
-- Making map
-  - Easy for sketch, hard for backdrop
-- Fidelity
-  - Great for backdrop, poor for sketch unless you have synthetic map capabilities
-- Ease of getting up and running
-  - Backdrop is easier
 
 ---
 

@@ -36,3 +36,15 @@
 .nolinenum .hljs-ln-numbers {
   display: none;
 }
+
+.good {
+  background-color: #abd9e9;
+}
+
+.fair {
+    background-color: #ffffbf;
+}
+
+.poor {
+  background-color: #fdae61;
+}
