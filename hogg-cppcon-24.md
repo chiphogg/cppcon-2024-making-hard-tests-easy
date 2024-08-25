@@ -1612,8 +1612,8 @@ TEST_F(MotionPlanner, CanRunInTest) {
 
 </div>
 <div class="fragment fade-in-then-out" data-fragment-index="6">
-  <video style="width: 90%;">
-    <source src="./figures/scene-builder-core/result.webm" type="video/webm" style="width: 50%">
+  <video style="width: 70%;">
+    <source src="./figures/scene-builder-core/result.webm" type="video/webm">
   </video>
 </div>
 <div class="fragment fade-in" data-fragment-index="7" style="width: 100%;">
