@@ -37,6 +37,10 @@
   display: none;
 }
 
+.nolinenum div {
+  width: 100%;
+}
+
 .good {
   background-color: #abd9e9;
 }

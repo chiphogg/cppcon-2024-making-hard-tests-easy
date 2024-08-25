@@ -1502,13 +1502,10 @@ Notes:
 TEST_F(MotionPlanner, CanRunInTest) {
   const auto road = HighwayMergeWithSubsequentExit{};
 
+  const auto ego_position = merge_completion_position(road) - 300 * m;
   const auto cycle_result =
     SceneBuilder{
       {
-
-
-
-
 
 
 
@@ -1524,18 +1521,15 @@ TEST_F(MotionPlanner, CanRunInTest) {
 </div>
 <div class="fragment fade-in-then-out" data-fragment-index="2" style="width: 100%;">
 
-```cpp [7]
+```cpp [8]
 TEST_F(MotionPlanner, CanRunInTest) {
   const auto road = HighwayMergeWithSubsequentExit{};
 
+  const auto ego_position = merge_completion_position(road) - 300 * m;
   const auto cycle_result =
     SceneBuilder{
       {
         .map = road,
-
-
-
-
 
 
 
@@ -1550,19 +1544,16 @@ TEST_F(MotionPlanner, CanRunInTest) {
 </div>
 <div class="fragment fade-in-then-out" data-fragment-index="3" style="width: 100%;">
 
-```cpp [8]
+```cpp [9]
 TEST_F(MotionPlanner, CanRunInTest) {
   const auto road = HighwayMergeWithSubsequentExit{};
 
+  const auto ego_position = merge_completion_position(road) - 300 * m;
   const auto cycle_result =
     SceneBuilder{
       {
         .map = road,
         .goal = final_pose(right_lane(road)),
-
-
-
-
 
 
       },
@@ -1576,20 +1567,17 @@ TEST_F(MotionPlanner, CanRunInTest) {
 </div>
 <div class="fragment fade-in-then-out" data-fragment-index="4" style="width: 100%;">
 
-```cpp [9-13]
+```cpp [10]
 TEST_F(MotionPlanner, CanRunInTest) {
   const auto road = HighwayMergeWithSubsequentExit{};
 
+  const auto ego_position = merge_completion_position(road) - 300 * m;
   const auto cycle_result =
     SceneBuilder{
       {
         .map = road,
         .goal = final_pose(right_lane(road)),
-        .ego_path =
-          {
-            nominal_path(right_lane(road)),
-            merge_completion_position(road) - 300 * m,
-          },
+        .ego_path = {nominal_path(right_lane(road)), ego_position},
 
       },
     }
@@ -1602,20 +1590,17 @@ TEST_F(MotionPlanner, CanRunInTest) {
 </div>
 <div class="fragment fade-in" data-fragment-index="5" style="width: 100%;">
 
-```cpp [14]
+```cpp [11]
 TEST_F(MotionPlanner, CanRunInTest) {
   const auto road = HighwayMergeWithSubsequentExit{};
 
+  const auto ego_position = merge_completion_position(road) - 300 * m;
   const auto cycle_result =
     SceneBuilder{
       {
         .map = road,
         .goal = final_pose(right_lane(road)),
-        .ego_path =
-          {
-            nominal_path(right_lane(road)),
-            merge_completion_position(road) - 300 * m,
-          },
+        .ego_path = {nominal_path(right_lane(road)), ego_position},
         .ego_motion = 65 * MPH,
       },
     }
@@ -1637,16 +1622,13 @@ TEST_F(MotionPlanner, CanRunInTest) {
 TEST_F(MotionPlanner, CanRunInTest) {
   const auto road = HighwayMergeWithSubsequentExit{};
 
+  const auto ego_position = merge_completion_position(road) - 300 * m;
   const auto cycle_result =
     SceneBuilder{
       {
         .map = road,
         .goal = final_pose(right_lane(road)),
-        .ego_path =
-          {
-            nominal_path(right_lane(road)),
-            merge_completion_position(road) - 300 * m,
-          },
+        .ego_path = {nominal_path(right_lane(road)), ego_position},
         .ego_motion = 65 * MPH,
       },
     }
@@ -1680,52 +1662,405 @@ Notes:
 
 ---
 
-## Core scene data
+## Putting actors in the scene
+
+<div class="container">
+<div class="fragment fade-in" data-fragment-index="1">
+
+#### Actor _Sketch_
+
+<div class="r-stack nolinenum">
+<div class="fragment fade-out" data-fragment-index="2">
+
+```cpp
+struct ActorSketchData {
+  int64_t id;
+
+  RelativePath path;
+  Motion motion;
+
+  ActorCategory category;
+  Eigen::Vector3d extents_m;
+};
+
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="2">
+
+```cpp [3]
+struct ActorSketchData {
+  int64_t id;
+
+  RelativePath path;
+  Motion motion;
+
+  ActorCategory category;
+  Eigen::Vector3d extents_m;
+};
+
+```
+
+</div>
+</div>
+<div class="r-stack nolinenum">
+<div class="fragment fade-in" data-fragment-index="2">
+
+```cpp
+class ActorSketch {
+ public:
+  Pose3D ground_pose(DurationD dt = ZERO) const;
+  DisplacementD length() const;
+  // ...
+
+  perception::Actor convert_to_actor();
+
+ private:
+  ActorSketchData data_;
+};
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="3">
+
+```cpp
+class ActorSketch {
+ public:
+  Pose3D ground_pose(DurationD dt = ZERO) const;
+  DisplacementD length() const;
+  // ...
+
+  perception::Actor convert_to_actor();
+
+ private:
+  ActorSketchData data_;
+};
+```
+
+</div>
+</div>
+</div>
+<div class="fragment fade-in" data-fragment-index="3">
+
+#### Actor _Sketcher_
+
+<div>
+
+```cpp
+class ActorSketcher {
+ public:
+  explicit ActorSketcher(RelativePath path);
+
+  ActorSketcher &set_motion(Motion motion);
+  ActorSketcher &set_category(ActorCategory category);
+  ActorSketcher &set_length(DisplacementD length);
+  // ...
+
+  ActorSketch sketch();
+};
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="4">
+
+```cpp
+ActorSketcher car_sketcher(RelativePath path) {
+  return ActorSketcher{path}
+    .set_category(ActorCategory::VEHICLE)
+    .set_length(4.5 * m);
+    .set_width(2.0 * m);
+    .set_height(1.5 * m);
+}
+
+ActorSketcher truck_sketcher(RelativePath path);
+ActorSketcher pedestrian_sketcher(RelativePath path);
+```
+
+</div>
+</div>
+</div>
 
 Notes:
 
-- Absolutely minimal information needed: map, goal, path
-  - These are easy to set from the backdrop
-  - Everything else: use setters
-- What to _do_ with it?  run-cycle-through-X
+- We use _sketches_: high level descriptions of actors.
+  - Data includes an ID, path-and-motion, actor type, and 3D extents
+  - They're always boxes; still lets us write almost every desired test
+- Can query properties, such as ground pose, length, etc.
+  - Can convert to a "real" actor type
+  - _Including a dynamically self-consistent sequence of historical observations_
+    - Perception actor has this, _you get this for free_
+- We make this with an **actor sketcher**.  Here's the generic version
+  - Must supply path: defaults to stopped
+  - Set the motion, type, etc. as desired
+  - Call `.sketch()` when done
+  - OK, but verbose
+- Pre-configured actor sketchers show intent: car, truck, pedestrian, etc.
+  - Prefer these
 
 ---
 
-## Ego vehicle data
+## Scene Builder: Adding actors
+
+<div class="r-stack nolinenum">
+<div class="fragment fade-in-then-out" data-fragment-index="1" style="width: 100%;">
+
+```cpp
+
+
+
+
+
+
+
+
+
+
+
+const auto cycle_result =
+  SceneBuilder{
+    {
+      .map = road,
+      .goal = final_pose(right_lane(road)),
+      .ego_path = {nominal_path(right_lane(road)), ego_position},
+      .ego_motion = 65 * MPH,
+    },
+  }
+
+
+    .run_cycle_through(RANKER);
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="2" style="width: 100%;">
+
+```cpp [1-3,21]
+const auto car = car_sketcher({nominal_path(onramp(road)), ego_position})
+  .set_motion(65 * MPH)
+  .sketch()
+
+
+
+
+
+
+
+
+const auto cycle_result =
+  SceneBuilder{
+    {
+      .map = road,
+      .goal = final_pose(right_lane(road)),
+      .ego_path = {nominal_path(right_lane(road)), ego_position},
+      .ego_motion = 65 * MPH,
+    },
+  }
+    .add_actor(car)
+
+    .run_cycle_through(RANKER);
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="3" style="width: 100%;">
+
+```cpp [2]
+const auto car = car_sketcher({nominal_path(onramp(road)), ego_position})
+  .set_motion(accelerating_from(35 * MPH).to(75 * MPH).at(2 * m / s / s).currently(65 * MPH))
+  .sketch()
+
+
+
+
+
+
+
+
+const auto cycle_result =
+  SceneBuilder{
+    {
+      .map = road,
+      .goal = final_pose(right_lane(road)),
+      .ego_path = {nominal_path(right_lane(road)), ego_position},
+      .ego_motion = 65 * MPH,
+    },
+  }
+    .add_actor(car)
+
+    .run_cycle_through(RANKER);
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="4" style="width: 100%;">
+
+```cpp [5-9,22]
+const auto car = car_sketcher({nominal_path(onramp(road)), ego_position})
+  .set_motion(accelerating_from(35 * MPH).to(75 * MPH).at(2 * m / s / s).currently(65 * MPH))
+  .sketch()
+
+const auto ped = pedestrian_sketcher({right_boundary(onramp(road))
+                      .pose_at(ego_position + 40 * m)
+                      .turn_left()
+                      .move_backward(3 * m)})
+            .sketch()
+
+
+const auto cycle_result =
+  SceneBuilder{
+    {
+      .map = road,
+      .goal = final_pose(right_lane(road)),
+      .ego_path = {nominal_path(right_lane(road)), ego_position},
+      .ego_motion = 65 * MPH,
+    },
+  }
+    .add_actor(car)
+    .add_actor(ped)
+    .run_cycle_through(RANKER);
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="5" style="width: 100%;">
+
+```cpp
+const auto car = car_sketcher({nominal_path(onramp(road)), ego_position})
+  .set_motion(accelerating_from(35 * MPH).to(75 * MPH).at(2 * m / s / s).currently(65 * MPH))
+  .sketch()
+
+const auto ped = pedestrian_sketcher({right_boundary(onramp(road))
+                      .pose_at(ego_position + 40 * m)
+                      .turn_left()
+                      .move_backward(3 * m)})
+            .sketch()
+
+
+const auto cycle_result =
+  SceneBuilder{
+    {
+      .map = road,
+      .goal = final_pose(right_lane(road)),
+      .ego_path = {nominal_path(right_lane(road)), ego_position},
+      .ego_motion = 65 * MPH,
+    },
+  }
+    .add_actor(car)
+    .add_actor(ped)
+    .run_cycle_through(RANKER);
+```
+
+</div>
+<img class="fragment fade-in" data-fragment-index="6" src="./figures/scene-builder-actors/scene_01.png">
+<img class="fragment fade-in" data-fragment-index="7" src="./figures/scene-builder-actors/scene_02.png">
+</div>
 
 Notes:
 
-- "Ego vehicle": that's us!
-- `.set_vehicle_type()`: variant of `Passcar`, `TractorTrailer`
-  - Can configure further, e.g., `.trailer_loading_percent = percent(40)`
-- `.set_motion()`: vehicle speed (or speed profile)
-  - Arguably should be part of core scene
-
----
-
-## Actors
-
-Notes:
-
-- Our actors in unit tests are simply boxes
-  - Gives a lot of value
-  - Set length, width, height
-- Construct with their path (or a pose, for a straight path)
-- `motion`: speed profile
-- actor "category": vehicle, pedestrian, etc.
+- Now let's add some actors!
+- Recall: here's our old scene
+- Add a car on the on-ramp at our same position (same "mile marker"), doing 65
+- Could use a more realistic scenario, getting up to speed
+  - `accelerating_from`: a motion builder
+    - Could you write it?  (Yeah!)
+    - Didn't change our car sketcher, but when we wrote this motion builder, it got more powerful!
+- Now add pedestrian facing the on ramp, 3 m away, stopped.
+  - Thinking.
+  - "Don't do it, pedestrian!  Bad idea!"
+- _Can you picture this scene?_
+- Here's the old scene: picture car and pedestrian... aaaand...
+- Yes, there they are!
+  - Apology: can only see positions
+  - This is most important; we believe speed/facing are correct too
 
 ---
 
 ## Interlude: Visualization
 
+<div class="container">
+<div class="r-stack nolinenum">
+<div class="fragment fade-out" data-fragment-index="2">
+
+```cpp [15]
+const auto road = HighwayMergeWithSubsequentExit{};
+
+const auto p =
+  merge_completion_position(road) - 300 * m;
+
+const auto cycle_result =
+  SceneBuilder{
+    {
+      .map = road,
+      .goal = final_pose(right_lane(road)),
+      .ego_path = {nominal_path(right_lane(road)), p},
+      .ego_motion = 65 * MPH,
+    },
+  }
+    .run_cycle_through(RANKER);
+
+
+
+
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="2">
+
+```cpp [15-18]
+const auto road = HighwayMergeWithSubsequentExit{};
+
+const auto p =
+  merge_completion_position(road) - 300 * m;
+
+const auto cycle_result =
+  SceneBuilder{
+    {
+      .map = road,
+      .goal = final_pose(right_lane(road)),
+      .ego_path = {nominal_path(right_lane(road)), p},
+      .ego_motion = 65 * MPH,
+    },
+  }
+    .run_cycle_through(
+      RANKER,
+      {.fail_and_visualize_to = "my_test"}
+    );
+```
+
+</div>
+</div>
+<div class="r-stack nolinenum">
+<div class="fragment fade-in" data-fragment-index="1">
+
+```cpp
+struct VisualizeTest {
+    std::string fail_and_visualize_to = "";
+};
+
+```
+
+</div>
+</div>
+</div>
+
+
 Notes:
 
 - Source code is as readable as possible... but it's not enough!
-- Must make it very easy to see the actual, built scene
-- "Fail and visualize to": send data to S3 that a web tool can read
+  - Must make it very easy to see the actual, built scene
+  - Here's an example scene we built
+- There's a second argument of _this_ type
+- Use designated initializer: "fail and visualize to" "my test"
+  - If nonempty, send data to S3 that a web tool can read
   - Interactive 3D visualizations!
     - That's where these screenshots come from
   - Why "fail"?  So we don't land test that tries-and-fails to send data to S3
+
+---
+
+# Intent-first APIs<br> and Evolution
+
+Notes:
+
+- All our APIs are very high level and intent based
+- Obviously great for writing and reading
+- Consider implications for **maintainability** as code evolves
 
 ---
 
