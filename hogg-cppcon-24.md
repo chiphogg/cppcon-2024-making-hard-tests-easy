@@ -1302,6 +1302,199 @@ Notes:
 
 Notes:
 
+- Now we have:
+  - _some_ solution for map data that gives meaningful paths
+  - user-friendly poses, paths, and motions
+- Time to enable writing real tests!
+  - MP test cases: in terms of _scene_; so, **scene builder**
+
+---
+
+## Scene Builder: Interfaces (core)
+
+<div class="r-stack nolinenum">
+<div class="fragment fade-in-then-out" data-fragment-index="1" style="width: 100%;">
+
+```cpp
+TEST_F(MotionPlanner, CanRunInTest) {
+  const auto road = HighwayMergeWithSubsequentExit{};
+
+  const auto cycle_result =
+    SceneBuilder{
+      {
+
+
+
+
+
+
+
+
+      },
+    }
+      .run_cycle_through(RANKER);
+
+  EXPECT_THAT(cycle_result, ProducesValidPlan());
+}
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="2" style="width: 100%;">
+
+```cpp [7]
+TEST_F(MotionPlanner, CanRunInTest) {
+  const auto road = HighwayMergeWithSubsequentExit{};
+
+  const auto cycle_result =
+    SceneBuilder{
+      {
+        .map = road,
+
+
+
+
+
+
+
+      },
+    }
+      .run_cycle_through(RANKER);
+
+  EXPECT_THAT(cycle_result, ProducesValidPlan());
+}
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="3" style="width: 100%;">
+
+```cpp [8]
+TEST_F(MotionPlanner, CanRunInTest) {
+  const auto road = HighwayMergeWithSubsequentExit{};
+
+  const auto cycle_result =
+    SceneBuilder{
+      {
+        .map = road,
+        .goal = final_pose(right_lane(road)),
+
+
+
+
+
+
+      },
+    }
+      .run_cycle_through(RANKER);
+
+  EXPECT_THAT(cycle_result, ProducesValidPlan());
+}
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="4" style="width: 100%;">
+
+```cpp [9-13]
+TEST_F(MotionPlanner, CanRunInTest) {
+  const auto road = HighwayMergeWithSubsequentExit{};
+
+  const auto cycle_result =
+    SceneBuilder{
+      {
+        .map = road,
+        .goal = final_pose(right_lane(road)),
+        .ego_path =
+          {
+            nominal_path(right_lane(road)),
+            merge_completion_position(road) - 300 * m,
+          },
+
+      },
+    }
+      .run_cycle_through(RANKER);
+
+  EXPECT_THAT(cycle_result, ProducesValidPlan());
+}
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="5" style="width: 100%;">
+
+```cpp [14]
+TEST_F(MotionPlanner, CanRunInTest) {
+  const auto road = HighwayMergeWithSubsequentExit{};
+
+  const auto cycle_result =
+    SceneBuilder{
+      {
+        .map = road,
+        .goal = final_pose(right_lane(road)),
+        .ego_path =
+          {
+            nominal_path(right_lane(road)),
+            merge_completion_position(road) - 300 * m,
+          },
+        .ego_motion = 65 * MPH,
+      },
+    }
+      .run_cycle_through(RANKER);
+
+  EXPECT_THAT(cycle_result, ProducesValidPlan());
+}
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="6">
+  <video style="width: 90%;">
+    <source src="./figures/scene-builder-core/result.webm" type="video/webm" style="width: 50%">
+  </video>
+</div>
+<div class="fragment fade-in" data-fragment-index="7" style="width: 100%;">
+
+```cpp
+TEST_F(MotionPlanner, CanRunInTest) {
+  const auto road = HighwayMergeWithSubsequentExit{};
+
+  const auto cycle_result =
+    SceneBuilder{
+      {
+        .map = road,
+        .goal = final_pose(right_lane(road)),
+        .ego_path =
+          {
+            nominal_path(right_lane(road)),
+            merge_completion_position(road) - 300 * m,
+          },
+        .ego_motion = 65 * MPH,
+      },
+    }
+      .run_cycle_through(RANKER);
+
+  EXPECT_THAT(cycle_result, ProducesValidPlan());
+}
+```
+
+</div>
+</div>
+
+Notes:
+
+- Describing scene: two kinds of inputs: constructor params, and chainable setters
+  - Constructor: things you need every single time
+  - Setters: more optional things
+- Core data
+  - Map
+  - Goal
+  - Ego path
+  - Ego motion
+- Can we picture this scene?
+  - In the right lane
+  - Merge finishes 300 m ahead
+  - Exit after the merge
+- Let's see
+  - Distance rings show about 300 m back
+  - Can see the merge, and the exit up ahead
+- Readable test source code, says everything we care about, nothing we don't, backed up by vis
+
 ---
 
 ## Core scene data
