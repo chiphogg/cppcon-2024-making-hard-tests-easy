@@ -582,13 +582,193 @@ Notes:
   - Immutable
   - pass all around program, can't get it wrong
 - Implement API functions: delegate
-- NOTE: the implementation also provides the curvature; not shown here
+- NOTE: the implementation also provides spatial derivatives such as curvature; not shown here
+
+---
+
+## `RelativePath`: interface type for actors
+
+(Including us!)
+
+<div class="container">
+<div class="r-stack nolinenum">
+<div class="fragment fade-out" data-fragment-index="1">
+
+```cpp
+class RelativePath {
+ public:
+  RelativePath(Ribbon path, PositionD current);
+
+
+
+
+
+
+
+
+  Pose3D pose_at_ds(DisplacementD ds) const;
+
+ private:
+  std::shared_ptr<const RelativePathImpl> impl_;
+};
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="1">
+
+```cpp [3]
+class RelativePath {
+ public:
+  RelativePath(Ribbon path, PositionD current);
+
+
+
+
+
+
+
+
+  Pose3D pose_at_ds(DisplacementD ds) const;
+
+ private:
+  std::shared_ptr<const RelativePathImpl> impl_;
+};
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="2">
+
+```cpp [5-6]
+class RelativePath {
+ public:
+  RelativePath(Ribbon path, PositionD current);
+
+  explicit(false)
+  RelativePath(Pose3D pose);
+
+
+
+
+
+  Pose3D pose_at_ds(DisplacementD ds) const;
+
+ private:
+  std::shared_ptr<const RelativePathImpl> impl_;
+};
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="3">
+
+```cpp [8-10]
+class RelativePath {
+ public:
+  RelativePath(Ribbon path, PositionD current);
+
+  explicit(false)
+  RelativePath(Pose3D pose);
+
+  RelativePath(
+    RelativePath path,
+    DisplacementD new_zero);
+
+  Pose3D pose_at_ds(DisplacementD ds) const;
+
+ private:
+  std::shared_ptr<const RelativePathImpl> impl_;
+};
+```
+
+</div>
+</div>
+<div>
+<div>
+
+```cpp
+// `RelativePath` is a great interface type!
+void set_actor_path(RelativePath path);
+```
+
+</div>
+<div class="r-stack nolinenum">
+<div class="fragment fade-in-then-out" data-fragment-index="1">
+
+```cpp
+// Pass Ribbon-and-Position as a pair.
+set_actor_path({nominal_path(lane), 40_m_pos});
+
+
+
+
+
+
+
+
+
+
+
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="2">
+
+```cpp [4-9]
+// Pass Ribbon-and-Position as a pair.
+set_actor_path({nominal_path(lane), 40_m_pos});
+
+// Pass a pose; get a straight path through the pose!
+set_actor_path(
+  right_boundary(lane)
+    .pose_at(50_m_pos)
+    .turn_left()
+    .move_backwards(3_m));
+
+
+
+
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="3">
+
+```cpp [11-12]
+// Pass Ribbon-and-Position as a pair.
+set_actor_path({nominal_path(lane), 40_m_pos});
+
+// Pass a pose; get a straight path through the pose!
+set_actor_path(
+  right_boundary(lane)
+    .pose_at(50_m_pos)
+    .turn_left()
+    .move_backwards(3_m));
+
+// "Tare" the relative path at a new zero.
+set_actor_path({ego_path, -50_m});
+```
+
+</div>
+</div>
+</div>
+</div>
+
+Notes:
+
+- Can be nice to bundle ribbon and position
+  - This gives us "relative path", a really handy interface type
+  - Note how pose is indexed by **physical displacement**, not position labels:
+    - "After moving a signed distance `ds`, where am I?"
+  - Here's an example API that takes a `RelativePath`.
+- Pass ribbon and position as braced pair
+  - Easy to understand what is meant
+- Pass a bare pose: implicitly converts to straight path through pose
+- "Tare" the relative path at a new zero: move the path
+  - Somebody following our path, and they're _currently_ 50 meters back
 
 ---
 
 ## `Motion`: speed profiles
 
-$dt \rightarrow \left(s, \frac{ds}{dt}, \frac{d^2s}{dt^2}\right)$
+$dt \rightarrow \left(ds, \frac{ds}{dt}, \frac{d^2s}{dt^2}\right)$
 
 <div class="container">
 <div class="r-stack nolinenum">
@@ -691,17 +871,17 @@ Notes:
 
 ---
 
-## `Ribbon` and `Motion` compose
+## `RelativePath` and `Motion` compose
 
-`Motion`: $\ \ \ dt \rightarrow \left(s, \frac{ds}{dt}, \frac{d^2s}{dt^2}\right)$
+`Motion`: $\ \ \ dt \rightarrow \left(ds, \frac{ds}{dt}, \frac{d^2s}{dt^2}\right)$
 
-`Ribbon`: $\ \ \ s \rightarrow \left(\text{pose}, \text{curvature}\right)$
+`RelativePath`: $\ \ \ ds \rightarrow \left(\text{pose}, \text{curvature}\right)$
 
 <div class="fragment fade-in">
 
 ```cpp
 const auto [ds, v, a] = motion.snapshot_at(dt);
-const auto [pose, curvature] = ribbon.point_at(p + ds);
+const auto [pose, curvature] = path.point_at_ds(ds);
 ```
 
 </div>
@@ -713,6 +893,9 @@ Notes:
 - A scene described in terms of `Ribbon` and `Motion` is not static!
   - Can query at near-past and near-future times!
   - History; predictions
+  - Motion is **self-consistent**:
+    - You get a pose and velocity
+    - Pose a short time later is what velocity would predict
 
 ---
 
