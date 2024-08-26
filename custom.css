@@ -52,3 +52,10 @@
 .poor {
   background-color: #fdae61;
 }
+
+figcaption {
+  width: 50%;
+  margin-left: 25%;
+  margin-top: -40px;
+  font-size: 50%;
+}

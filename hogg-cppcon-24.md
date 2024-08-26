@@ -2054,7 +2054,7 @@ Notes:
 
 ---
 
-# Intent-first APIs<br> and Evolution
+# Intent-first APIs<br>and Evolution
 
 Notes:
 
@@ -2065,6 +2065,15 @@ Notes:
 ---
 
 ## Construction and blockages
+
+<div>
+  <img src="./figures/construction.jpg">
+  <figcaption>
+
+  By <a href="https://www.flickr.com/photos/oregondot/">OregonDOT</a> (Flickr), CC BY-SA 2.0 DEED, <https://www.flickr.com/photos/oregondot/35245496740/in/photostream/>
+
+  </figcaption>
+</div>
 
 Notes:
 
