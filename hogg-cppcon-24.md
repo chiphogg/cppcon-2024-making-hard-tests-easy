@@ -2087,18 +2087,94 @@ Notes:
     - Can add _lateral offsets_
   - Implementation: drop barrels whose edges fall along this path
     - If you block the left side, the barrels are **on** the left side
+
+---
+
+## Blockage example
+
+<div class="container">
+<div>
+
+```cpp [5-11,26]
+const auto road = TwoLaneStraightRoad{};
+
+const auto ego_position = 0_m_pos;
+
+const auto construction =
+  block_left_side_along(
+      right_boundary(left_lane(road)))
+    .from(ego_position + 50 * m,
+      MoveLeft{width(left_lane(road))})
+    .through(ego_position + 100 * m)
+    .to(ego_position + 250 * m);
+
+const auto result =
+  SceneBuilder{
+    {
+      .map = road,
+      .goal = final_pose(left_lane(road)),
+      .ego_path =
+        {
+          nominal_path(left_lane(road)),
+          ego_position,
+        },
+      .ego_motion = 65 * MPH,
+    },
+  }
+    .add_blockage(construction)
+    .run_cycle_through(RANKER);
+```
+
+</div>
+
+<div>
+<div class="r-stack">
+<img src="./figures/construction-tests/persp_01.png">
+<img class="fragment fade-in" data-fragment-index="1" src="./figures/construction-tests/persp_02.png">
+<img class="fragment fade-in" data-fragment-index="2" src="./figures/construction-tests/persp_03.png">
+</div>
+<div class="r-stack">
+<img src="./figures/construction-tests/top_01.png">
+<img class="fragment fade-in" data-fragment-index="1" src="./figures/construction-tests/top_02.png">
+<img class="fragment fade-in" data-fragment-index="2" src="./figures/construction-tests/top_03.png">
+</div>
+</div>
+</div>
+
+Notes:
+
 - Example
   - We're in the left lane, two lane road, position zero
   - Block _left side_ along _right boundary_
-  - Start 20 meters up, moved left by the lane width
-  - Checkpoint at 50 meters, no lateral displacement
-  - Ends at 150 meters
-- What did you picture?  Was it something like this?
+  - Start 50 meters up, moved left by the lane width
+  - Checkpoint at 100 meters, no lateral displacement
+  - Ends at 250 meters
+- What barrels did you picture?  Was it something like this?
+- Here's the detected boundary
   - Note that tapering is very important
 
 ---
 
 ## Value of intent-first interfaces
+
+<div class="fragment fade-in" data-fragment-index="1">
+
+#### Categorical
+
+</div>
+
+<div class="r-stack">
+<img src="./figures/categorical_vs_continuous/bare_barrels.png" style="width: 80%">
+<img class="fragment fade-in" data-fragment-index="1" src="./figures/categorical_vs_continuous/categorical.png" style="width: 80%">
+</div>
+
+<div class="fragment fade-in" data-fragment-index="2">
+
+#### Continuous
+
+<img src="./figures/categorical_vs_continuous/continuous.png" style="width: 80%">
+
+</div>
 
 Notes:
 
@@ -2116,13 +2192,67 @@ Notes:
 
 ## Blockage test: categorical implementation
 
+```cpp
+const auto road = TwoLaneStraightRoad{};
+
+const auto ego_lane = left_lane(road);
+const auto ego_position = 0_m_pos;
+
+const auto construction =
+  block_left_side_along(right_boundary(ego_lane))
+    .from(ego_position + 50 * m, MoveLeft{width(ego_lane)})
+    .through(ego_position + 100 * m)
+    .to(ego_position + 250 * m);
+
+const auto selected_plan =
+  SceneBuilder{
+    {
+      .map = road,
+      .goal = final_pose(ego_lane),
+      .ego_path = {nominal_path(ego_lane), ego_position},
+      .ego_motion = 65 * MPH,
+    },
+  }
+    .add_blockage(construction)
+    .run_cycle_through(RANKER);
+
+EXPECT_THAT(selected_plan, PlansLaneChange(Direction::RIGHT));
+```
+
 Notes:
 
 - Here's source code for a test when the planner treats construction categorically
 
 ---
 
-## Blockage test: refined implementation
+## Blockage test: continuous implementation
+
+```cpp
+const auto road = TwoLaneStraightRoad{};
+
+const auto ego_lane = left_lane(road);
+const auto ego_position = 0_m_pos;
+
+const auto construction =
+  block_left_side_along(right_boundary(ego_lane))
+    .from(ego_position + 50 * m, MoveLeft{width(ego_lane)})
+    .through(ego_position + 100 * m)
+    .to(ego_position + 250 * m);
+
+const auto selected_plan =
+  SceneBuilder{
+    {
+      .map = road,
+      .goal = final_pose(ego_lane),
+      .ego_path = {nominal_path(ego_lane), ego_position},
+      .ego_motion = 65 * MPH,
+    },
+  }
+    .add_blockage(construction)
+    .run_cycle_through(RANKER);
+
+EXPECT_THAT(selected_plan, PlansLaneChange(Direction::RIGHT));
+```
 
 Notes:
 
