@@ -1,4 +1,4 @@
-# (Title image placeholder)
+<section data-background="./Making Hard Tests Easy-_TitleCard copy.png" data-background-size="contain">
 
 Notes:
 
