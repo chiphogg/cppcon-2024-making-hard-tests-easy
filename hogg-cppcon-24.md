@@ -2269,24 +2269,277 @@ Notes:
 Notes:
 
 - Everything so far is "what will users write"
-- But... why does this work?
+- But... how does this work?
+
+---
+
+## Building up `SceneDescription`
+
+<div class="container">
+<div>
+
+```cpp
+struct SceneDescription {
+  MapData map;
+  Goal goal;
+  EgoState ego;
+  std::vector<ActorSketch> actors;
+  std::vector<BlockageSketch> blockages;
+
+  PlannerConfig config;
+};
+```
+
+<div class="fragment">
+
+```cpp
+struct Goal {
+  Pose3D start_pose;
+  DisplacementD length;
+  GoalType type;
+};
+```
+
+</div>
+<div class="fragment">
+
+```cpp
+struct EgoState {
+  RelativePath path;
+  Motion motion;
+  TurnSignalHistory turn_signal;
+};
+```
+
+</div>
+
+</div>
+
+<div>
+
+```cpp
+class SceneBuilder {
+ public:
+  // ...
+
+ private:
+  SceneDescription scene_;
+};
+```
+
+<div class="fragment">
+
+```cpp
+SceneBuilder &SceneBuilder::add_actor(
+    ActorSketch sketch) {
+  scene_.actors.push_back(sketch);
+  return *this;
+}
+```
+
+</div>
+
+</div>
+</div>
+
+Notes:
+
+- SceneBuilder functions build up a "scene description"
+  - Just a struct to collect hi-level descriptions
+- We can imagine what some of these are
+  - goal
+  - ego state
+- Fluent API implementations really simple
+  - add actor
+- That's not super interesting.  What's _really_ interesting is what you _do_ with `SceneDescription`
 
 ---
 
 ## Planner is based on messages
 
+<div class="r-stack">
+<div class="r-stack planner_messages">
+<img class="fragment fade-in" data-fragment-index="1" src="./figures/planner_messages/planner_messages_0.svg">
+<img class="fragment fade-in" data-fragment-index="2" src="./figures/planner_messages/planner_messages_1.svg">
+<img class="fragment fade-in" data-fragment-index="3" src="./figures/planner_messages/planner_messages_2.svg">
+<img class="fragment fade-in" data-fragment-index="4" src="./figures/planner_messages/planner_messages_3.svg">
+<img class="fragment fade-in" data-fragment-index="6" src="./figures/planner_messages/planner_messages_4.svg">
+<img class="fragment fade-in" data-fragment-index="7" src="./figures/planner_messages/planner_messages_5.svg">
+<img class="fragment fade-in" data-fragment-index="8" src="./figures/planner_messages/planner_messages_6.svg">
+</div>
+
+<div class="container planner_msgs_code">
+<div class="r-stack nolinenum">
+<div class="fragment fade-in-then-out" data-fragment-index="5">
+
+```cpp
+struct SceneDescription {
+  MapData map;
+  Goal goal;
+  EgoState ego;
+  std::vector<ActorSketch> actors;
+  std::vector<BlockageSketch> blockages;
+
+  PlannerConfig config;
+};
+```
+
+```cpp
+struct Goal {
+  Pose3D start_pose;
+  DisplacementD length;
+  GoalType type;
+};
+```
+
+```cpp
+struct EgoState {
+  RelativePath path;
+  Motion motion;
+  TurnSignalHistory turn_signal;
+};
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="6">
+
+```cpp [1,4,9]
+struct SceneDescription {
+  MapData map;
+  Goal goal;
+  EgoState ego;
+  std::vector<ActorSketch> actors;
+  std::vector<BlockageSketch> blockages;
+
+  PlannerConfig config;
+};
+```
+
+```cpp [1,5]
+struct Goal {
+  Pose3D start_pose;
+  DisplacementD length;
+  GoalType type;
+};
+```
+
+```cpp [1,2,3,5]
+struct EgoState {
+  RelativePath path;
+  Motion motion;
+  TurnSignalHistory turn_signal;
+};
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="7">
+
+```cpp [1,2,9]
+struct SceneDescription {
+  MapData map;
+  Goal goal;
+  EgoState ego;
+  std::vector<ActorSketch> actors;
+  std::vector<BlockageSketch> blockages;
+
+  PlannerConfig config;
+};
+```
+
+```cpp [1,5]
+struct Goal {
+  Pose3D start_pose;
+  DisplacementD length;
+  GoalType type;
+};
+```
+
+```cpp [1,5]
+struct EgoState {
+  RelativePath path;
+  Motion motion;
+  TurnSignalHistory turn_signal;
+};
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="8">
+
+```cpp [1,5,6,9]
+struct SceneDescription {
+  MapData map;
+  Goal goal;
+  EgoState ego;
+  std::vector<ActorSketch> actors;
+  std::vector<BlockageSketch> blockages;
+
+  PlannerConfig config;
+};
+```
+
+```cpp [1,5]
+struct Goal {
+  Pose3D start_pose;
+  DisplacementD length;
+  GoalType type;
+};
+```
+
+```cpp [1,5]
+struct EgoState {
+  RelativePath path;
+  Motion motion;
+  TurnSignalHistory turn_signal;
+};
+```
+
+</div>
+
+</div>
+
+<div><!-- Empty second column --></div>
+</div>
+</div>
+
 Notes:
 
-- Recall: planner gets input messages (map, route, actors, so on)
-- Scene builder builds a **high level description** of a scene
-- Decomposes perfectly:
+- Recall: planner gets input messages (map, route, actors, ...)
+- Implementation decomposes perfectly:
   - For each input type, ask: what messages would I expect to see if I were in this situation?
   - Remember!  Can query scene at near-past times!
     - So for actors, it's easy to get whole _history_ of messages
+      - Self-consistent!
 
 ---
 
 ## `SceneMessages`: a container of inputs
+
+<div class="container">
+<div>
+
+#### Planner input types
+
+```cpp
+struct EgoPoseTopic {
+  using MsgType = localization::proto::Pose;
+};
+constexpr auto EGO_POSE = EgoPoseTopic{};
+
+
+struct MapTopic {
+  using MsgType = mapping::proto::Map;
+};
+constexpr auto MAP = MapTopic{};
+
+
+struct ActorsTopic {
+  using MsgType = perception::proto::Actors;
+};
+constexpr auto ACTORS = ActorsTopic{};
+```
+
+</div>
+</div>
 
 Notes:
 
