@@ -3,6 +3,10 @@
   min-height: 100%;
 }
 
+.reveal .slide-number {
+  font-size: 24pt;
+}
+
 .reveal code {
   max-height: 100% !important;
 }
