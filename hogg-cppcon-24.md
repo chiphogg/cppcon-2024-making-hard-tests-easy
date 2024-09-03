@@ -136,6 +136,11 @@ Notes:
 
 ## Autonomy stack
 
+<div class="r-stack">
+<img src="./figures/autonomy/autonomy_stack.svg" style="width: 100%;">
+<img src="./figures/autonomy/full_stack.svg" style="width: 100%;" class="fragment fade-in">
+</div>
+
 Notes:
 
 - Black box: sensor data in, Gas/brake/steering commands out
@@ -147,6 +152,8 @@ Notes:
 ---
 
 ## Motion Planner
+
+<img src="./figures/mp_parts/stages.svg" style="width: 100%;">
 
 Notes:
 
@@ -273,6 +280,53 @@ Source code: high callsite readability
 ---
 
 ## Levels of solution
+
+<div class="container_60_40">
+<div>
+
+### Level 3: Scene Builder
+
+</div>
+
+<div>
+<img style="width: 70%;" src="./figures/levels/level_3.png">
+</div>
+</div>
+
+<div class="fragment container_60_40">
+<div>
+
+### Level 2: Map Abstractions
+
+</div>
+<div>
+<img style="width: 70%;" src="./figures/levels/level_2.png">
+</div>
+</div>
+
+<div class="fragment container_60_40">
+<div>
+
+### Level 1: Poses, Paths, and Motions
+
+</div>
+<div>
+<img style="width: 70%;" src="./figures/levels/level_1.png">
+</div>
+</div>
+
+<div class="fragment container_60_40">
+<div>
+
+### Level 0: ...
+
+</div>
+<div>
+
+## 🤔
+
+</div>
+</div>
 
 Notes:
 
@@ -573,8 +627,8 @@ Ribbon get_flat_ribbon_turning_left(CurvatureD k, Pose3D origin_pose) {
 
 Notes:
 
-- Ribbon is polymorphic
-  - Implementation class w/ pure virtuals
+- Ribbon uses polymorphism
+  - Interface class w/ pure virtuals
   - End users don't see polymorphism!
 - shared-ptr-to-const has **value semantics**, size of shared-ptr for any complexity
   - shared-ptr-to-non-const is hidden global variable :(
@@ -758,11 +812,13 @@ Notes:
   - Note how pose is indexed by **physical displacement**, not position labels:
     - "After moving a signed distance `ds`, where am I?"
   - Here's an example API that takes a `RelativePath`.
+    - Let's see some callsites and their constructors
 - Pass ribbon and position as braced pair
   - Easy to understand what is meant
 - Pass a bare pose: implicitly converts to straight path through pose
 - "Tare" the relative path at a new zero: move the path
   - Somebody following our path, and they're _currently_ 50 meters back
+- Now that we're solid on paths, let's talk about along-path motion
 
 ---
 
@@ -816,7 +872,7 @@ class Motion {
   explicit Motion(
     std::shared_ptr<const MotionImplementation> impl);
 
-  Motion(VelocityD constant_speed);
+  explicit(false) Motion(VelocityD constant_speed);
 
   MotionSnapshot snapshot_at(DurationD dt) const;
 
@@ -2085,7 +2141,8 @@ Notes:
     - Pick a "main path" from the scene
     - Add checkpoints of _along-path positions_
     - Can add _lateral offsets_
-  - Implementation: drop barrels whose edges fall along this path
+    - Piecewise linear result
+  - Implementation: drop barrels whose edges touch this path
     - If you block the left side, the barrels are **on** the left side
 
 ---
@@ -2322,6 +2379,10 @@ class SceneBuilder {
  public:
   // ...
 
+  SceneBuilder &add_actor(ActorSketch sketch);
+
+  // ...
+
  private:
   SceneDescription scene_;
 };
@@ -2346,12 +2407,13 @@ Notes:
 
 - SceneBuilder functions build up a "scene description"
   - Just a struct to collect hi-level descriptions
-- We can imagine what some of these are
+- We can imagine what some of these nested structs are
   - goal
   - ego state
 - Fluent API implementations really simple
   - add actor
-- That's not super interesting.  What's _really_ interesting is what you _do_ with `SceneDescription`
+- Not super interesting.
+  - How does Scene Description enable running tests?
 
 ---
 
@@ -2359,18 +2421,18 @@ Notes:
 
 <div class="r-stack">
 <div class="r-stack planner_messages">
-<img class="fragment fade-in" data-fragment-index="1" src="./figures/planner_messages/planner_messages_0.svg">
-<img class="fragment fade-in" data-fragment-index="2" src="./figures/planner_messages/planner_messages_1.svg">
-<img class="fragment fade-in" data-fragment-index="3" src="./figures/planner_messages/planner_messages_2.svg">
-<img class="fragment fade-in" data-fragment-index="4" src="./figures/planner_messages/planner_messages_3.svg">
-<img class="fragment fade-in" data-fragment-index="6" src="./figures/planner_messages/planner_messages_4.svg">
-<img class="fragment fade-in" data-fragment-index="7" src="./figures/planner_messages/planner_messages_5.svg">
-<img class="fragment fade-in" data-fragment-index="8" src="./figures/planner_messages/planner_messages_6.svg">
+<img src="./figures/planner_messages/planner_messages_0.svg">
+<img class="fragment fade-in" data-fragment-index="1" src="./figures/planner_messages/planner_messages_1.svg">
+<img class="fragment fade-in" data-fragment-index="2" src="./figures/planner_messages/planner_messages_2.svg">
+<img class="fragment fade-in" data-fragment-index="3" src="./figures/planner_messages/planner_messages_3.svg">
+<img class="fragment fade-in" data-fragment-index="5" src="./figures/planner_messages/planner_messages_4.svg">
+<img class="fragment fade-in" data-fragment-index="6" src="./figures/planner_messages/planner_messages_5.svg">
+<img class="fragment fade-in" data-fragment-index="7" src="./figures/planner_messages/planner_messages_6.svg">
 </div>
 
 <div class="container planner_msgs_code">
 <div class="r-stack nolinenum">
-<div class="fragment fade-in-then-out" data-fragment-index="5">
+<div class="fragment fade-in-then-out" data-fragment-index="4">
 
 ```cpp
 struct SceneDescription {
@@ -2401,7 +2463,7 @@ struct EgoState {
 ```
 
 </div>
-<div class="fragment fade-in-then-out" data-fragment-index="6">
+<div class="fragment fade-in-then-out" data-fragment-index="5">
 
 ```cpp [1,4,9]
 struct SceneDescription {
@@ -2432,7 +2494,7 @@ struct EgoState {
 ```
 
 </div>
-<div class="fragment fade-in-then-out" data-fragment-index="7">
+<div class="fragment fade-in-then-out" data-fragment-index="6">
 
 ```cpp [1,2,9]
 struct SceneDescription {
@@ -2463,7 +2525,7 @@ struct EgoState {
 ```
 
 </div>
-<div class="fragment fade-in-then-out" data-fragment-index="8">
+<div class="fragment fade-in-then-out" data-fragment-index="7">
 
 ```cpp [1,5,6,9]
 struct SceneDescription {
@@ -2504,20 +2566,30 @@ struct EgoState {
 Notes:
 
 - Recall: planner gets input messages (map, route, actors, ...)
-- Implementation decomposes perfectly:
-  - For each input type, ask: what messages would I expect to see if I were in this situation?
+- Modules **publish**, planner **subscribes**
+  - Publish, subscribe.  Pub/sub.
+- They keep producing
+- When cycle starts, each buffer has _messages_, each received at some _timestamp_
+- How could scene description help recreate this situation?
+  - Implementation decomposes perfectly:
+    - For each input topic, **separately**, ask: what messages would I expect to see if I were in this situation?
+- Ego: easy, path and motion
   - Remember!  Can query scene at near-past times!
     - So for actors, it's easy to get whole _history_ of messages
-      - Self-consistent!
+      - Self-consistent!  Velocity, etc.
+- Map: easier, just the map
+- Actors: check the actors, and also get barrels from construction boundaries
+  - Again: self-consistent history
+  - **Task:** build set of timestamped messages; put them on queue
 
 ---
 
-## `SceneMessages`: a container of inputs
+## Storing planner input messages
 
-<div class="container">
+<div class="container nolinenum">
 <div>
 
-#### Planner input types
+#### Planner input "tag types"
 
 ```cpp
 struct EgoPoseTopic {
@@ -2538,6 +2610,48 @@ struct ActorsTopic {
 constexpr auto ACTORS = ActorsTopic{};
 ```
 
+```cpp
+using PlannerInputs = std::tuple<
+  EgoPoseTopic,
+  MapTopic,
+  ActorsTopic,
+  // ...
+  >;
+```
+
+</div>
+<div>
+
+#### One topic, one message
+
+```cpp
+template <typename Topic>
+struct TimedMessage {
+  Timestamp               publish_time;
+  typename Topic::MsgType message;
+};
+```
+
+#### One topic, multiple messages
+
+```cpp
+template <typename Topic>
+using TimedMessages =
+  std::vector<TimedMessage<Topic>>;
+```
+
+#### All topics, multiple messages
+
+```cpp [3-7]
+template <typename TupleT>
+struct TimedMessagesForEach;
+
+template <typename... Topics>
+struct TimedMessagesForEach<std::tuple<Topics...>> {
+  using type = std::tuple<TimedMessages<Topics>...>;
+};
+```
+
 </div>
 </div>
 
@@ -2545,57 +2659,359 @@ Notes:
 
 - Planner inputs represented by tag types
   - We have _canonical instances_ of these types, ready-made values
+- Also: tuple of "all planner inputs"
 - For each input: a sequence of timestamped messages
-- Can index into container with tag types
-  - Takes care of awkwardness around saying, e.g., std-get-vector-timestamped-message-T
-- Also more robust when actually running the planner
-  - Can't "forget" to populate messages in a topic
+  - (Mention steps)
+- Has right shape.  Is it usable?
 
 ---
 
-## `InputSampler`: filling up `SceneMessages`
+## `SceneMessages`: better ergonomics
+
+<div style="width: 50%; margin: auto;">
+
+```cpp
+class SceneMessages {
+ public:
+  template <typename Topic>
+  TimedMessages<Topic> &operator[](Topic) {
+    return std::get<TimedMessages<Tag>>(data_);
+  }
+
+  // Also a `const` version, naturally...
+
+ private:
+  TimedMessagesForEach<PlannerInputs> data_{};
+};
+```
+
+</div>
+
+<div class="container nolinenum">
+
+<div>
+
+```cpp
+TimedMessagesForEach<PlannerInputs> messages;
+std::get<TimedMessages<EgoPoseTopic>>(messages);
+```
+
+</div>
+
+<div>
+
+```cpp
+SceneMessages messages;
+messages[EGO_POSE];
+```
+
+</div>
+
+</div>
 
 Notes:
 
-- Two separate questions for each input type
-  - What times should I see these messages?
-  - What _contents_ should a message have, at a _given time_?
-- This separation is key to testing extreme situations
+- Can make tuple (wordy), and access one vector (clumsy)
+  - End users want: "give me the entry for this topic"
+- Wrap in a class
+- Provide square bracket operator, accept tag by **value**
+- Interfaces way more ergonomic!
+  - "Feels like" python style associative container
+  - All dispatching happens when program is **built**
+- Nice container.  How do we fill it?
+
+---
+
+## Filling up `SceneMessages`
+
+<div class="container nolinenum">
+
+<div>
+
+#### What _times_ would we get this topic?
+
+```cpp
+std::vector<Timestamp> default_message_times(
+  EgoPoseTag,
+  const SceneDescription &scene);
+```
+
+</div>
+
+<div>
+
+#### What _contents_ would it have, at a _given time_?
+
+```cpp
+EgoPoseTag::MsgType build_message(
+  EgoPoseTag,
+  const SceneDescription &scene,
+  const DerivedSceneData &derived_data,
+  const SceneMessages &messages_so_far,
+  Timestamp t);
+```
+
+</div>
+
+</div>
+
+<div style="width: 75%; margin: auto;">
+
+#### Putting them together...
+
+```cpp
+SceneMessages sample(const SceneDescription &scene) {
+  SceneMessages messages{};
+
+  const auto derived_data = preprocess(scene);
+  auto coordinator = make_coordinator(scene); // Whose turn is it?
+  for (const auto &[time, topic] : coordinator) {
+    messages[topic].push_back({  // WARNING: "Slide code"!
+      .publish_time = time,      // (`topic` is really a variant...)
+      .message = build_message(topic, scene, derived_data, messages, time),
+    });
+  }
+
+  return messages;
+}
+```
+
+</div>
+
+Notes:
+
+- Remember: take each topic separately
+  - Another two phase approach (like splitting trajectory into path and motion helped tests)
+
+- Two separate questions for each input type: "_in this situation..._"
+  - What _times_?
+  - What _contents_ at a _given time_?
+- Go together in the natural way
+  - Glossed over a couple things in these interfaces...
+- First, `topic` is a variant
+  - This `push_back` line is what goes _inside_ the matcher
+- Second: can apply _tweaks_ to both _timings_ and _contents_ of msgs.  Why?
+  - Class 8 trucks with nobody in them: incredibly sobering
+    - Need very solid coverage of fault conditions
+  - Let's take a closer look
 
 ---
 
 ## Input Tweaks
 
+<div class="container nolinenum">
+<div>
+
+```cpp
+struct TweakInput {
+  VariantFromTuple<PlannerInputs>
+    topic;
+
+  Variant<DropAll, SetLatestAge, InvalidateLast, ...>
+    tweak;
+};
+```
+
+<div class="fragment fade-in">
+
+#### Interfaces for tweaks:
+
+```cpp
+void apply_to_times(
+  InOut<std::vector<Timestamp>> times);
+
+template <typename Topic>
+void apply_to_contents(
+  InOut<TimedMessages<Topic>> messages);
+```
+
+</div>
+
+</div>
+
+<div class="fragment fade-in tweaks">
+
+#### Untweaked:
+
+<img src="./figures/tweak/results_0.svg">
+
+<div class="fragment fade-in">
+
+#### `.tweak = SetLatestAge{600 * ms}`:
+
+<img src="./figures/tweak/results_1.svg">
+
+</div>
+<div class="fragment fade-in">
+
+#### `.tweak = DropAll{}`:
+
+<img src="./figures/tweak/results_2.svg">
+
+</div>
+<div class="fragment fade-in">
+
+#### `.tweak = InvalidateLast{}`:
+
+<img src="./figures/tweak/results_3.svg">
+
+</div>
+</div>
+
 Notes:
 
 - An "input tweak" combines a particular input, and some change
-  - "drop all" means we never got any messages
-  - "set latest age" shifts all timestamps, so we can simulate staleness
-  - "mutate last" means do anything to the last message
+  - Topic variant just tells us which topic we're tweaking
+  - Tweak variant says what to do
+- Tweak type needs two methods
+  - times
+  - contents
 - Key: **first** choose times, **then** generate message contents
-  - e.g., "set latest age" for actors to 1 second (yikes!):
-    - you get actor positions from _one second ago_, not current positions with a timestamp field tweaked
-  - effortlessly consistent!
-  - great for testing fault conditions
+- Examples
+- `SetLatestAge` shifts timestamps (simulate staleness)
+- `DropAll`: no messages (simulate never-arrived)
+- `InvalidateLast` (simulate invalid input)
+  - How does this look in real test source code?
 
 ---
 
-other stuffs
+## Tweaks in context
 
-- problems, thinking ahead
-  - ribbon: position -> pose.  Assumes self-consistency
-    - Make generic "ribbon test harness", useful for unit tests of new ribbon implementations
-  - actor history: assumes no collisions with each other or ego
-    - Can imagine adding a collision check step
-    - _Will not impact public interface!_
-    - Don't need to add this in the MVP
-  - dynamic feasibility
-    - "path plus motion" is naive, just ask a controls engineer
-    - Example: two lane road.  Can make a U-turn path --- but can a semi _drive it?_
-    - Dynamic feasibility checks for _ego_ vehicle could explode the whole scheme!
-    - Solution: trajectory fitter.  Path and motion are inputs... **and outputs**!
-      - Throw exception if it changes too much, because test is badly written
-      - **Does not change the public interface**
-    - Takeaway:
-      - **Not** that you need to do this right away
-      - Just: make sure you're not coding yourself into a corner
+<div class="r-stack nolinenum">
+<div class="fragment fade-out" data-fragment-index="1">
+
+```cpp
+TEST_F(MotionPlanner, CanRunInTest) {
+  const auto road = HighwayMergeWithSubsequentExit{};
+
+  const auto ego_position = merge_completion_position(road) - 300 * m;
+  const auto cycle_result =
+    SceneBuilder{
+      {
+        .map = road,
+        .goal = final_pose(right_lane(road)),
+        .ego_path = {nominal_path(right_lane(road)), ego_position},
+        .ego_motion = 65 * MPH,
+      },
+    }
+
+      .run_cycle_through(RANKER);
+
+  EXPECT_THAT(cycle_result.issues, IsEmpty());
+}
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="1">
+
+```cpp [14,17]
+TEST_F(MotionPlanner, CanRunInTest) {
+  const auto road = HighwayMergeWithSubsequentExit{};
+
+  const auto ego_position = merge_completion_position(road) - 300 * m;
+  const auto cycle_result =
+    SceneBuilder{
+      {
+        .map = road,
+        .goal = final_pose(right_lane(road)),
+        .ego_path = {nominal_path(right_lane(road)), ego_position},
+        .ego_motion = 65 * MPH,
+      },
+    }
+      .add_input_tweak(EGO_POSE, SetLatestAge{STALE_EGO_POSE_THRESHOLD + 1 * ms});
+      .run_cycle_through(RANKER);
+
+  EXPECT_THAT(cycle_result.issues, Contains(Issues::EGO_POSE_LOST));
+}
+```
+
+</div>
+</div>
+
+Notes:
+
+- Here's a simple planner test from before
+  - Let's imagine we stopped getting ego pose messages
+- Add input tweak
+  - ego pose
+  - set latest age 1 ms past threshold
+  - Easy to test that planner detects fault _condition_ appropriately
+  - Need other tests for fault _response_
+
+---
+
+# Wrapping Up
+
+Notes:
+
+- 2 conclusions, one for each audience
+
+---
+
+## Summary: MP Tests
+
+<div class="container">
+<div>
+
+#### Motion Planning
+
+</div>
+
+<div>
+
+#### Levels of solution
+
+</div>
+
+<div>
+
+#### Intent based APIs
+
+#### Fault handling
+
+</div>
+</div>
+
+Notes:
+
+- Planning problem:
+  - take msgs for pose, map, actors, so on
+  - make plan for one cycle
+- Solution based on levels
+  - Level 3: describe a situation the planner finds itself in
+  - Level 2: map abstraction, one of two basins in design space
+  - Level 1: foundational types: chainable poses, aligned paths, etc.
+  - Level 0: Au, our open source units library
+    - Interesting: as you go down, each level gets more broadly useful
+    - L3: **Aurora** MP only
+    - L1: Many teams at Aurora
+    - L0: people far beyond Aurora, including you!
+- Intent-based APIs help as code evolves
+- Can even handle fault conditions in callsite readable way!
+  - That's one concrete problem with complex inputs.  General case?
+
+---
+
+## Summary: Complex Inputs Playbook
+
+- Know your domain
+- Figure out: what would "easy" even look like?
+- Judge ideas: feasibility, usability, scope
+
+Notes:
+
+- Know your domain!
+  - e.g., mile marker solution for aligned paths
+  - Had been thinking about MP test APIs for years before this
+- Brainstorm: in a perfect outcome, what source code would you be writing?
+  - Give imagination free reign
+  - Then, cast a critical eye:
+- Think about feasibility, usability, and scope
+  - Can you picture the implementation?
+  - What will users try to do with this?
+  - Easy to use correctly?  Hard to use incorrectly?
+  - Scope: what are your core use cases?  "Stretch" ones?  And definitely out of scope?
+
+---
+
+Placeholder for endy slide

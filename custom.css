@@ -21,6 +21,11 @@
   grid-auto-flow: column;
 }
 
+.container_60_40 {
+  display: grid;
+  grid-template-columns: 60% 40%;
+}
+
 .container div {
   width: 100%;
 }
@@ -75,4 +80,12 @@ div.planner_messages > img {
 
 div.planner_msgs_code {
   width: 100%;
+}
+
+div.tweaks img {
+  transform: scale(3.5);
+}
+
+div.tweaks h4 {
+  margin-top: 0.6em;
 }
