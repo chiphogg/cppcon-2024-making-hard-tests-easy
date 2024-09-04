@@ -15,6 +15,17 @@
   transition: all 1.5s ease;
 }
 
+.levels_of_solution {
+  width: 90%;
+}
+.levels_of_solution > div {
+  display: grid;
+  grid-auto-flow: column;
+}
+.levels_of_solution div span {
+  vertical-align: middle;
+}
+
 .container {
   display: grid;
   grid-auto-columns: minmax(0, 1fr);
@@ -82,8 +93,12 @@ div.planner_msgs_code {
   width: 100%;
 }
 
-div.tweaks img {
+div.tweaks img, div.fault img {
   transform: scale(3.5);
+}
+
+.fault .r-stack {
+  margin-bottom: 2em;
 }
 
 div.tweaks h4 {

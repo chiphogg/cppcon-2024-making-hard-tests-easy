@@ -2951,24 +2951,70 @@ Notes:
 ## Summary: MP Tests
 
 <div class="container">
-<div>
+<div class="fragment fade-in">
 
 #### Motion Planning
 
+<img src="./figures/mp_parts/planner_summary.svg">
+
 </div>
 
-<div>
+<div class="fragment levels_of_solution">
 
 #### Levels of solution
 
+<div class="fragment">
+<span>
+
+### 3. Scene
+
+</span>
+<span><img src="./figures/levels/level_3.png"></span>
+</div>
+<div class="fragment">
+<span>
+
+### 2. Maps
+
+</span>
+<span><img src="./figures/levels/level_2.png"></span>
+</div>
+<div class="fragment">
+<span>
+
+### 1. Primitives
+
+</span>
+<span><img src="./figures/levels/level_1.png"></span>
+</div>
+<div class="fragment">
+<span>
+
+### 0. Units
+
+</span>
+<span><img src="./figures/au.png"></span>
+</div>
 </div>
 
-<div>
+<div class="fragment">
 
 #### Intent based APIs
 
+<img src="./figures/construction-tests/persp_03.png" style="width: 80%;">
+
+<div class="fragment fault">
+
 #### Fault handling
 
+<div class="r-stack"><img src="./figures/tweak/results_0.svg"></div>
+<div class="r-stack">
+<img class="fragment fade-in-then-out" src="./figures/tweak/results_1.svg">
+<img class="fragment fade-in-then-out" src="./figures/tweak/results_2.svg">
+<img class="fragment fade-in" src="./figures/tweak/results_3.svg">
+</div>
+
+</div>
 </div>
 </div>
 
@@ -2979,8 +3025,10 @@ Notes:
   - make plan for one cycle
 - Solution based on levels
   - Level 3: describe a situation the planner finds itself in
+    - Fluent APIs
   - Level 2: map abstraction, one of two basins in design space
-  - Level 1: foundational types: chainable poses, aligned paths, etc.
+    - Sketchers, or backdrops
+  - Level 1: foundational types: chainable poses, aligned paths, speed profiles
   - Level 0: Au, our open source units library
     - Interesting: as you go down, each level gets more broadly useful
     - L3: **Aurora** MP only
@@ -3014,4 +3062,6 @@ Notes:
 
 ---
 
-Placeholder for endy slide
+<section data-background="./figures/aurora-truck-car.jpg" data-background-size="contain">
+
+<h1 style="color: white; position: absolute; width: 100%; margin-top: -3em;">Questions?</h1>
