@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="174.625mm"
+   height="79.375mm"
+   viewBox="0 0 174.625 79.375"
+   version="1.1"
+   id="svg5"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs2">
+    <marker
+       style="overflow:visible"
+       id="Arrow1Mend"
+       refX="0"
+       refY="0"
+       orient="auto">
+      <path
+         transform="matrix(-0.4,0,0,-0.4,-4,0)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path9501" />
+    </marker>
+  </defs>
+  <g
+     id="layer1">
+    <rect
+       style="fill:#ffffff;fill-opacity:0.99900609;stroke:none;stroke-width:0.529167;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect21400"
+       width="174.625"
+       height="79.375"
+       x="0"
+       y="0" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.264583"
+       x="21.166666"
+       y="63.5"
+       id="text3820"><tspan
+         id="tspan3818"
+         style="stroke-width:0.264583"
+         x="21.166666"
+         y="63.5"></tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:6.35px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="58.687737"
+       y="63.500004"
+       id="text5810"><tspan
+         id="tspan5808"
+         style="stroke-width:0.264583"
+         x="58.687737"
+         y="63.500004">Map Sketch</tspan><tspan
+         style="stroke-width:0.264583"
+         x="58.687737"
+         y="71.4375"
+         id="tspan5812">Object(s)</tspan></text>
+    <rect
+       style="fill:none;fill-opacity:0.65;stroke:#000000;stroke-width:0.264583;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect8236"
+       width="47.624996"
+       height="21.166666"
+       x="34.395836"
+       y="55.562504" />
+    <text
+       xml:space="preserve"
+       style="font-size:6.35px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="26.937735"
+       y="10.583332"
+       id="text8588"><tspan
+         style="stroke-width:0.264583"
+         x="26.937735"
+         y="10.583332"
+         id="tspan8586">Unit Test</tspan><tspan
+         style="stroke-width:0.264583"
+         x="26.937735"
+         y="18.520832"
+         id="tspan8704">Source Code</tspan></text>
+    <rect
+       style="fill:none;fill-opacity:0.65;stroke:#000000;stroke-width:0.264583;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect8590"
+       width="47.624996"
+       height="21.166666"
+       x="2.6458333"
+       y="2.6458333" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Mend)"
+       d="M 26.458334,23.812499 C 47.269417,41.964274 42.93291,44.849008 49.741668,54.768749"
+       id="path9433" />
+    <g
+       id="g19564"
+       transform="translate(-21.166661,-9.2604183)">
+      <rect
+         style="fill:#b0e1e7;fill-opacity:1;stroke:#000000;stroke-width:0.529167;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect19235"
+         width="52.916664"
+         height="11.90625"
+         x="29.104166"
+         y="41.010418"
+         ry="3.9687488" />
+      <text
+         xml:space="preserve"
+         style="font-size:4.23333px;line-height:1.25;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="55.5625"
+         y="44.979168"
+         id="text18577"><tspan
+           id="tspan18575"
+           style="stroke-width:0.264583"
+           x="55.5625"
+           y="44.979168">uses</tspan><tspan
+           style="stroke-width:0.264583"
+           x="55.5625"
+           y="50.270828"
+           id="tspan18579">(for placing actors)</tspan></text>
+    </g>
+  </g>
+</svg>

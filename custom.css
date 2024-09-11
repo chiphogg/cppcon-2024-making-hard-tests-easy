@@ -15,6 +15,15 @@
   transition: all 1.5s ease;
 }
 
+.repo {
+  font-family: monospace;
+}
+
+.repo::before {
+  content:url("./figures/github-mark.svg");
+  margin-right: 1em;
+}
+
 .levels_of_solution {
   width: 90%;
 }
@@ -26,10 +35,23 @@
   vertical-align: middle;
 }
 
+.storing > div {
+  width: 100%;
+}
+
 .container {
   display: grid;
   grid-auto-columns: minmax(0, 1fr);
   grid-auto-flow: column;
+}
+
+.two-clients {
+  width: 100%;
+  height: 100%;
+}
+
+.two-clients img {
+  width: 150%;
 }
 
 .container_60_40 {
@@ -37,11 +59,29 @@
   grid-template-columns: 60% 40%;
 }
 
+.container_75_25 {
+  display: grid;
+  grid-template-columns: 75% 25%;
+}
+
+.container_75_25 > .r-stack > div {
+  width: 108%;
+  margin-left: -1em;
+}
+
 .container div {
   width: 100%;
 }
 
 .container div code {
+  width: 100%;
+}
+
+.identical_contents {
+  margin-left: -1em;
+}
+
+.easy > div {
   width: 100%;
 }
 

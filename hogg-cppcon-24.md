@@ -5,9 +5,8 @@ Notes:
 - Welcome!
 - Two kinds of audience
   - People testing functions w/complicated inputs
-    - Testing is hard
-    - use concrete example where we made it easy
-    - Mention generic principles at the end
+    - deep dive on one concrete example
+    - try to extract general principles
   - Motion planning for self driving
     - Lucky!  Clear, specific paths through design space
 
@@ -25,18 +24,14 @@ Notes:
 Notes:
 
 - Aurora
-  - benefits of self driving, safely, quickly, broadly
+  - deliver benefits of self driving, safely, quickly, broadly
   - launching first product _this year_: self-driving trucks, Dallas to Houston
 - Me: Chip Hogg
   - Almost 4 years at Aurora, on motion planning team, almost 9 in self driving
   - Main contribution: making good tests easy
 
-- Disclaimer
-  - May not be exactly what you would find if you went to Aurora today
-    - Interfaces evolve
-    - Changed some terms
-    - Some features are incomplete
-  - The point of the talk is to communicate design principles
+  - Disclaimer: APIs not exact
+    - Goal: whatever communicates **ideas** most clearly
 
 ---
 
@@ -50,25 +45,103 @@ Notes:
 
 ## Testing Pyramid
 
-<img src="./figures/testing_pyramid/pyramid_temp.svg" style="width: 60%;">
+<div class="container">
 
-Notes:
-
-- Tests: on a spectrum
-  - Unit: fine-grained, fast, isolated
-  - Integration: bring components together
-  - End-to-end: entire system
-    - Self driving e2e examples: sim, track, on-road
-  - Compiler errors: maybe even faster than unit tests
-- Higher up: bigger scope, slower, more expensive
-- Lower: isolated, fast, cheap, easy to understand, tight iteration cycles
-- We're here in the middle: from big unit tests to integration tests
-
----
-
-## Arrange, Act, Assert
+<div class="r-stack">
+<img src="./figures/testing_pyramid/pyramid.svg">
+<img class="fragment fade-in" src="./figures/testing_pyramid/pyramid_focus.svg">
+</div>
+<div class="r-stack nolinenum">
+<div class="fragment fade-in">
 
 ```cpp
+TEST(Florpinate, ProducesGoodStuff) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+```
+
+</div>
+<div class="fragment fade-in">
+
+```cpp [2-8]
+TEST(Florpinate, ProducesGoodStuff) {
+  //
+  // ARRANGE
+  //
+  // Create the inputs you'll need
+  //
+  const auto a = make_input_one();
+  const auto b = make_input_two();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+```
+
+</div>
+<div class="fragment fade-in">
+
+```cpp [10-15]
+TEST(Florpinate, ProducesGoodStuff) {
+  //
+  // ARRANGE
+  //
+  // Create the inputs you'll need
+  //
+  const auto a = make_input_one();
+  const auto b = make_input_two();
+
+  //
+  // ACT
+  //
+  // Perform the action under test
+  //
+  const auto result = florpinate(a, b);
+
+
+
+
+
+
+
+}
+```
+
+</div>
+<div class="fragment fade-in">
+
+```cpp [17-22]
 TEST(Florpinate, ProducesGoodStuff) {
   //
   // ARRANGE
@@ -94,35 +167,89 @@ TEST(Florpinate, ProducesGoodStuff) {
 }
 ```
 
+</div>
+<div class="fragment fade-in">
+
+```cpp [2-8]
+TEST(Florpinate, ProducesGoodStuff) {
+  //
+  // ARRANGE
+  //
+  // Create the inputs you'll need
+  //
+  const auto a = make_input_one();
+  const auto b = make_input_two();
+
+  //
+  // ACT
+  //
+  // Perform the action under test
+  //
+  const auto result = florpinate(a, b);
+
+  //
+  // ASSERT
+  //
+  // Check the properties of what you made
+  //
+  EXPECT_THAT(result.stuff(), IsGood());
+}
+```
+
+</div>
+</div>
+</div>
+
 Notes:
 
+- Tests: on a spectrum
+  - ranging from
+    - e2e tests, whole system
+    - integration tests
+    - unit tests
+    - even compiler errors, line/sub-line level
+  - top: bigger scope, but slower/more expensive
+  - bottom: fine grained, fast, cheap, easy to understand
+  - need **all** --- complementary; defense-in-depth
+- We're here in the middle: from big unit tests to integration tests
+  - Or: "things you write a C++ test case for"
+
 - Unit/integration tests: 3 phases
-  - Arrange: set things up
-  - Act: the thing you're testing
-  - Assert: did it do the right thing?
-- Today's problem is in Arrange
+- Arrange: set things up
+- Act: the thing you're testing
+- Assert: did it do the right thing?
+- Today's problem is mostly in Arrange
 
 ---
 
 ## When inputs are complicated
 
-<img src="./figures/lane-change-trajectory.png" style="width: 60%;">
+```cpp
+Trajectory predict_motion(const Trajectory &input, DurationD dt_prediction);
+```
+
+<div class="fragment">
+<img src="./figures/lane-change-trajectory.png" style="width: 55%;">
 
 Example: vehicle motion history
 
 - Changing lanes
 - Accelerating
 
+</div>
+
 Notes:
 
 - Real world functions can have complicated inputs.
-  - Example: Vehicle motion history
-- Two bad choices
-  - Realistic data (hard to set up / understand)
-  - Simple fake data (doesn't test much)
-- How to solve?
-  - Tolstoy: "all simple function inputs are alike; each complicated input is complicated in its own way"
-  - Pick _one_ complicated input, study, and generalize
+  - Example: predict vehicle motion from history
+- Input: changing lanes, accelerating
+  - Two bad choices
+    - Realistic data (hard to set up / understand)
+    - Simple fake data (doesn't test much)
+  - How to solve?
+    - According to Tolstoy:
+      - "all simple function inputs are alike; each complicated input is complicated in its own way"
+    - Pick _one_ complicated input, study, and generalize
 
 ---
 
@@ -130,7 +257,9 @@ Notes:
 
 Notes:
 
-- Learn just enough about Motion Planning to understand the example
+- Our example: motion planning
+  - self driving, maybe aerial
+- Learn just enough so anyone can understand the example
 
 ---
 
@@ -138,43 +267,58 @@ Notes:
 
 <div class="r-stack">
 <img src="./figures/autonomy/autonomy_stack.svg" style="width: 100%;">
-<img src="./figures/autonomy/full_stack.svg" style="width: 100%;" class="fragment fade-in">
+<img src="./figures/autonomy/full_stack_0.svg" style="width: 100%;" class="fragment fade-in">
+<img src="./figures/autonomy/full_stack_1.svg" style="width: 100%;" class="fragment fade-in">
+<img src="./figures/autonomy/full_stack_2.svg" style="width: 100%;" class="fragment fade-in">
+<img src="./figures/autonomy/full_stack_3.svg" style="width: 100%;" class="fragment fade-in">
+<img src="./figures/autonomy/full_stack_4.svg" style="width: 100%;" class="fragment fade-in">
 </div>
 
 Notes:
 
-- Black box: sensor data in, Gas/brake/steering commands out
-- Repeat/re-plan multiple times per second
-- Refine: well-defined components
-  - Communicate via message passing, pub/sub
-  - e.g., perception, control
+- Black box
+  - Let's refine
+  - Well defined components, communicate by messages
+- Sensors tell us...
+- know which part of the map to fetch
+- plan route that takes us to goal
+- these feed in to **motion planning**
+  - given situation, produce trajectory (path and speed)
+- controls knows how...
+  - Repeat/re-plan multiple times per second
+  - How to implement **motion planner**?
 
 ---
 
 ## Motion Planner
 
-<img src="./figures/mp_parts/stages.svg" style="width: 100%;">
+<div class="r-stack">
+<img src="./figures/mp_parts/stages_0.svg" style="width: 100%;">
+<img class="fragment fade-in" src="./figures/mp_parts/stages_1.svg" style="width: 100%;">
+<img class="fragment fade-in" src="./figures/mp_parts/stages_2.svg" style="width: 100%;">
+<img class="fragment fade-in" src="./figures/mp_parts/stages_3.svg" style="width: 100%;">
+<img class="fragment fade-in" src="./figures/mp_parts/stages_4.svg" style="width: 100%;">
+</div>
 
 Notes:
 
-- Inputs:
-  - Map (what's the world?)
-  - Localization (where am I?)
-  - Goal / Route (where am I going?)
-  - Actors (who else is out there?)
-- Output: trajectory
-- Inner architecture
-  - World builder
-  - Plan generator
-  - Plan chooser
-  - Could have tests for any of these
-- Cycle: the unit of integration test
-  - Inputs: really complicated! (map, actors)
-  - How to describe actor positions, in source code?
-    - x/y/z/theta?  No, forces reader to make a grid
-    - Relative to map?  No, map is for planner, not humans
-  - In both cases: tons of boilerplate, obscures intent
-  - Not even enough!  Need to describe history of motion
+- Three stage architecture: extremely flexible
+- Assess the situation
+  - Assemble inputs into a coherent whole
+- Come up with a bunch of ideas
+  - Hundreds, thousands
+- Pick the best one
+  - Robust, flexible!
+    - e.g., reserve emergency maneuvers
+    - will do when better than anything else
+  - Inputs to trajectory: **one cycle**
+    - Unit of test
+    - What are we testing?
+      - Whole thing
+      - Any stage
+      - Any sub-stage
+- Problem reduces to making **these inputs**
+  - Can run parts of the planner to get the rest
 
 ---
 
@@ -193,14 +337,9 @@ Notes:
 Notes:
 
 - Kent Beck: "Make the change easy (warning: this may be hard), then make the easy change"
-  - Feels like a cheat code
-  - Writing function, notice it needs another task: doing 2 problems in your head
-    - Pause; put it aside
-    - Now only one problem; write tests
-    - Come back: now it's easy!
-    - This is the way
-- The "this may be hard" comes on a spectrum
-  - Complicated function inputs tend to live on the harder side
+  - Cultivate this skill: feels like a cheat code
+  - The "this may be hard" comes on a spectrum
+    - Complicated function inputs tend to live on the harder side
 - So: **how** to "make the change easy"?
   - 1. Figure out what "easy" would even look like
     - If you can't, no point in going further
@@ -214,9 +353,183 @@ Notes:
 
 ## What would "easy" look like?
 
-<div class="r-stack">
+<div class="container">
 
-<div style="width: 100%;">
+<div>
+
+- Two lane highway
+
+</div>
+<div>
+
+- 65 MPH in right lane
+
+</div>
+<div>
+
+- Car in front doing 50 MPH
+
+</div>
+</div>
+
+<div class="r-stack easy nolinenum">
+
+<div>
+
+```cpp
+TEST_F(MotionPlanner, PlansLaneChangeAroundSlowVehicle) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+```
+
+</div>
+<div class="fragment fade-in">
+
+```cpp [2-3]
+TEST_F(MotionPlanner, PlansLaneChangeAroundSlowVehicle) {
+    const auto map = two_lane_straight_highway();  // Revisit this API...
+    const auto lane = right_lane(only_road(map));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+```
+
+</div>
+<div class="fragment fade-in">
+
+```cpp [10-20]
+TEST_F(MotionPlanner, PlansLaneChangeAroundSlowVehicle) {
+    const auto map = two_lane_straight_highway();  // Revisit this API...
+    const auto lane = right_lane(only_road(map));
+
+
+
+
+
+
+    const auto plan =
+        SceneBuilder{
+            {
+                .map = map,
+                .goal = final_pose(lane),
+                .ego_path = {nominal_path(lane), 0_m_pos},
+                .ego_motion = 65 * MPH,
+            },
+        }
+
+        .run_cycle_through(RANKER);
+
+
+
+}
+```
+
+</div>
+<div class="fragment fade-in">
+
+```cpp [5-8,19]
+TEST_F(MotionPlanner, PlansLaneChangeAroundSlowVehicle) {
+    const auto map = two_lane_straight_highway();  // Revisit this API...
+    const auto lane = right_lane(only_road(map));
+
+    const auto slow_car =
+        car_sketcher({nominal_path(lane), 40_m_pos})
+            .set_motion(50 * MPH)
+            .sketch();
+
+    const auto plan =
+        SceneBuilder{
+            {
+                .map = map,
+                .goal = final_pose(lane),
+                .ego_path = {nominal_path(lane), 0_m_pos},
+                .ego_motion = 65 * MPH,
+            },
+        }
+        .add_track(slow_car)
+        .run_cycle_through(RANKER);
+
+
+
+}
+```
+
+</div>
+<div class="fragment fade-in">
+
+```cpp [22-23]
+TEST_F(MotionPlanner, PlansLaneChangeAroundSlowVehicle) {
+    const auto map = two_lane_straight_highway();  // Revisit this API...
+    const auto lane = right_lane(only_road(map));
+
+    const auto slow_car =
+        car_sketcher({nominal_path(lane), 40_m_pos})
+            .set_motion(50 * MPH)
+            .sketch();
+
+    const auto plan =
+        SceneBuilder{
+            {
+                .map = map,
+                .goal = final_pose(lane),
+                .ego_path = {nominal_path(lane), 0_m_pos},
+                .ego_motion = 65 * MPH,
+            },
+        }
+        .add_track(slow_car)
+        .run_cycle_through(RANKER);
+
+    // Out of scope for this talk...
+    EXPECT_THAT(plan, ChangesLaneTo(left_lane(only_road(map))));
+}
+```
+
+</div>
+<div class="fragment fade-in-then-out">
+  <video style="width: 80%;">
+    <source src="./figures/vis3d.webm" type="video/webm" style="width: 50%">
+  </video>
+</div>
+<div class="fragment fade-in">
 
 ```cpp
 TEST_F(MotionPlanner, PlansLaneChangeAroundSlowVehicle) {
@@ -246,12 +559,6 @@ TEST_F(MotionPlanner, PlansLaneChangeAroundSlowVehicle) {
 ```
 
 </div>
-<div class="fragment fade-in-then-out">
-  <video style="width: 90%;">
-    <source src="./figures/vis3d.webm" type="video/webm" style="width: 50%">
-  </video>
-</div>
-<div class="fragment fade-in"></div>
 </div>
 
 Notes:
@@ -259,6 +566,25 @@ Notes:
 - What's an example motion planner test case?
   - 2 ln hwy, 65 in R ln, car doing 50 in front, nobody else
   - Want planner to propose a lane change
+- Get a map from somewhere (TBD)
+  - Get the right lane
+- Build the scene!
+  - (read code)
+- Slow car
+  - (read code)
+- Expect a lane change (somehow)
+  - Readable: easy to picture
+  - Stretch goal: interactive 3D vis
+- (show vis)
+
+
+
+
+
+
+
+
+
 - All planner tests: based on **scene**
   - Key: describe the **map** (backdrop where scene takes place)
   - Make variable for lane of interest
@@ -340,18 +666,25 @@ Notes:
 ## Level 0: units library!
 
 <div class="r-stack">
-<img style="width: 90%;" src="./figures/cppcon_2021.png">
-<img style="width: 90%;" class="fragment fade-in-then-out" data-fragment-index="1" src="./figures/cppcon_2023.png">
+<div>
+<img src="./figures/au.png">
+<br>
+<div class="repo">aurora-opensource/au</div>
+</div>
+<img style="width: 90%;" class="fragment" src="./figures/units/units_0.png">
+<img style="width: 90%;" class="fragment" src="./figures/units/units_1.png">
+<img style="width: 90%;" class="fragment" src="./figures/units/units_2.png">
 </div>
 
 Notes:
 
 - Built for _these libraries_!
+  - Imagined APIs without it (😬)
   - ...but brought in other stakeholders across Aurora
-- CppCon 2021: shared what we learned
-  - No better library available
-- CppCon 2023: we open sourced it!
-  - Personal opinion: _still_ the best C++14 or C++17 units library today!
+- CppCon 2021: shared what to look for
+- _At the time:_ no **public** library had these properties
+  - So we open sourced it
+- Presented it at CppCon 2023
 
 ---
 
@@ -453,9 +786,11 @@ Pose3D pose = get_starting_pose()
 Notes:
 
 - "Pose" means "where": position plus orientation
-  - Key capability: _chainable_ APIs to make _related_ poses
-
-- Given starting pose, easy to make new one in readable way
+- **Core goal**: given _starting_ pose, easy + readable to make _related_ pose
+- Move fwd
+- Turn, defaults to 90 degrees
+- More complicated motion: constant curvature
+  - Key idea: _chainable_ APIs
   - ...where does that "starting pose" come from though?
 
 ---
@@ -475,16 +810,12 @@ Notes:
   - No x/y/z/theta.  Ever!
     - I will move the origin when you're not looking
     - Many bad tests will fail; all good tests will still pass
-- Here's a path: right boundary of right lane of road
+  - Here's a path: right boundary of right lane of road
 - Give it a position, get a pose, move it to where you want
+- Move right
+- Turn left
+  - Easy to see: "facing the boundary"
 
-
-old:
-- Path object, `Ribbon`: map along-path position onto pose
-  - `_m_pos` is our position type
-  - "Ribbon", mathematically: a 3D path, with a surface orientation attached
-  - "Road-optimized": more than just poses
-  - Consider the following...
 
 ---
 
@@ -499,19 +830,21 @@ old:
 
 Notes:
 
-- For path like right boundary, also have left boundary
-- Try to line them up: dilemma!
-- Natural approach: positions get out of alignment (inside track is shorter)
+- For right boundary
+- Gonna want **left** boundary
+  - line them up: dilemma!
+- Natural approach: positions get out of alignment
+  - inside track more efficient
 - Can force-align: but then position differences aren't accurate distances!
-- WDYT?  First approach?  Second?  Any strong opinions?
+  - WDYT?  First approach?  Second?  Any strong opinions?
 
-- Good news: real world has this problem too
-  - Can use same solution: mile markers
-  - Positions are just labels for points
-  - Can't "add" two positions (like chrono `time_point`)
-  - Subtracting _positions_ gives a _displacement_
-    - still _approximately_ correct despite curvature
-- Now we can appreciate our path type: `Ribbon`
+  - Good news: real world has this problem too
+    - Can use same solution: mile markers
+    - Positions are just labels for points
+    - Can't "add" two positions (like chrono `time_point`)
+    - Subtracting _positions_ gives a _displacement_
+      - still _approximately_ correct despite curvature
+  - Now we can appreciate our path type: `Ribbon`
 
 ---
 
@@ -526,17 +859,266 @@ Notes:
 Notes:
 
 - Mathematically, "Ribbon" = 3D path + surface orientation
-  - pose-at-each-position, where pose points along path, is equivalent
-- `Ribbon` is "road-optimized".  What does that mean?
-  - Translates between "position differences" and "real physical displacements"
+  - pose-at-each-position
+  - points along path
+  - `Ribbon` is "road-optimized".  What does that mean?
+    - Translates between "position differences" and "real physical displacements"
   - Let's take a point `p`, at the 10 meter position.
-  - Path can Advance by 10 meters
-    - get 21.8 meter position (not just 20)
-  - Measure along-path displacement, with "geodesic displacement", get just 8.5 meters
+- Path can Advance by 10 meters
+  - get 21.8 meter position (not just 20)
+- Measure along-path displacement, with "geodesic displacement", get just 8.5 meters
+  - Paths act as basic "reference frames" for scene
+  - For actor: pair **path** with **position**
+  - Other APIs, e.g., curvature, not shown here
+    - (Think of as "spatial derivatives"... if you like)
 
 ---
 
-## Aside: hiding polymorphism
+## `RelativePath`: interface type for actors
+
+(Including us!)
+
+
+<div class="container">
+<div>
+<div>
+
+#### `RelativePath` interfaces
+
+</div>
+<div class="r-stack nolinenum">
+<div>
+
+```cpp
+class RelativePath {
+ public:
+
+
+
+
+
+
+  Pose3D pose_at_ds(DisplacementD ds) const;
+};
+```
+
+</div>
+<div class="fragment" data-fragment-index="2">
+
+```cpp [3-4]
+class RelativePath {
+ public:
+  explicit(false)
+  RelativePath(Ribbon path, PositionD current);
+
+
+
+
+  Pose3D pose_at_ds(DisplacementD ds) const;
+};
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="3">
+
+```cpp [6-7]
+class RelativePath {
+ public:
+  explicit(false)
+  RelativePath(Ribbon path, PositionD current);
+
+  explicit(false)
+  RelativePath(Pose3D pose);
+
+  Pose3D pose_at_ds(DisplacementD ds) const;
+};
+```
+
+</div>
+</div>
+</div>
+<div class="fragment" data-fragment-index="1">
+
+<div>
+
+#### Example API:
+
+```cpp
+void set_actor_path(RelativePath path);
+```
+
+<div class="fragment" data-fragment-index="2">
+<div>
+
+#### Example callsites:
+
+</div>
+<div class="r-stack nolinenum">
+<div class="fragment fade-in-then-out" data-fragment-index="2">
+
+```cpp
+// Pass Ribbon-and-Position as a pair.
+set_actor_path({nominal_path(lane), 40_m_pos});
+
+
+
+
+```
+
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="3">
+
+```cpp [4-9]
+// Pass Ribbon-and-Position as a pair.
+set_actor_path({nominal_path(lane), 40_m_pos});
+
+// Pass a pose; get a straight path through the pose!
+set_actor_path(pose_facing_lane_boundary)
+```
+
+</div>
+</div>
+</div>
+</div>
+
+Notes:
+
+- `RelativePath`:
+  - Given signed along-path distance from where you started, where are you now?
+- Designed to be **interface type**
+  - Here's an example API
+- Pass braced pair of path and position
+  - Easy to understand what is meant
+- Pass a pose
+  - Get straight path
+  - e.g., ped facing road
+    - no pre-existing path there
+    - make the pose, imply path
+
+---
+
+## `Motion`: speed profiles
+
+$dt \rightarrow \left(ds, \frac{ds}{dt}, \frac{d^2s}{dt^2}\right)$
+
+<div class="container">
+<div class="r-stack nolinenum">
+<div>
+
+```cpp
+class Motion {
+ public:
+
+
+  MotionSnapshot snapshot_at(DurationD dt) const;
+};
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="2">
+
+```cpp [5]
+class Motion {
+ public:
+
+
+  MotionSnapshot snapshot_at(DurationD dt) const;
+};
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="3">
+
+```cpp [3]
+class Motion {
+ public:
+  explicit(false) Motion(VelocityD constant_speed);
+
+  MotionSnapshot snapshot_at(DurationD dt) const;
+};
+```
+
+</div>
+</div>
+
+<div class="r-stack nolinenum">
+<div class="fragment fade-in-then-out" data-fragment-index="2">
+
+```cpp
+struct MotionSnapshot {
+  DisplacementD displacement = ZERO;
+  VelocityD velocity         = ZERO;
+  AccelerationD acceleration = ZERO;
+};
+
+
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="3">
+
+```cpp [6]
+struct MotionSnapshot {
+  DisplacementD displacement = ZERO;
+  VelocityD velocity         = ZERO;
+  AccelerationD acceleration = ZERO;
+};
+
+
+```
+
+</div>
+</div>
+</div>
+
+Notes:
+
+- `Motion` maps elapsed time onto along-path displacement and its derivatives
+  - velocity, accel
+  - What's "motion snapshot"?
+- Struct of quantities
+- Implicitly constructible from speed
+  - Motion is an **interface type**
+  - Tempted to write constant-speed-only interface?
+    - Use motion instead
+    - Still pass any speed: 20 m/s, 65 MPH, etc.
+  - Other polymorphic constructors not shown here
+  - Later on, more complicated motions like braking:
+    - Fluent readable builder API
+    - Add functionality with no extra cost
+
+---
+
+## `RelativePath` and `Motion` compose
+
+`Motion`: $\ \ \ dt \rightarrow \left(ds, \frac{ds}{dt}, \frac{d^2s}{dt^2}\right)$
+
+`RelativePath`: $\ \ \ ds \rightarrow \left(\text{pose}, \text{curvature}\right)$
+
+<div class="fragment fade-in">
+
+```cpp
+const auto [ds, v, a] = motion.snapshot_at(dt);
+const auto [pose, curvature] = path.point_at_ds(ds);
+```
+
+</div>
+
+Notes:
+
+- (Explain mapping)
+- In code...
+  - Note: we're using the fuller, curvature API here
+  - A scene described in terms of `Ribbon` and `Motion` is not static!
+    - Can query at near-past and near-future times!
+    - History; predictions
+    - Motion is **self-consistent**:
+      - You get a pose and velocity
+      - Pose a short time later is what velocity would predict
+
+---
+
+## Aside: hidden polymorphism
 
 <div class="container">
 <div>
@@ -630,328 +1212,14 @@ Notes:
 - Ribbon uses polymorphism
   - Interface class w/ pure virtuals
   - End users don't see polymorphism!
-- shared-ptr-to-const has **value semantics**, size of shared-ptr for any complexity
-  - shared-ptr-to-non-const is hidden global variable :(
+- shared-ptr-to-const
+  - shared-ptr-to-non-const would be hidden global variable :(
+  - **value semantics**, size of shared-ptr for any complexity
   - **lightweight value types**.
   - Immutable
   - pass all around program, can't get it wrong
+  - don't care about heap costs in tests
 - Implement API functions: delegate
-- NOTE: the implementation also provides spatial derivatives such as curvature; not shown here
-
----
-
-## `RelativePath`: interface type for actors
-
-(Including us!)
-
-<div class="container">
-<div class="r-stack nolinenum">
-<div class="fragment fade-out" data-fragment-index="1">
-
-```cpp
-class RelativePath {
- public:
-  RelativePath(Ribbon path, PositionD current);
-
-
-
-
-
-
-
-
-  Pose3D pose_at_ds(DisplacementD ds) const;
-
- private:
-  std::shared_ptr<const RelativePathImpl> impl_;
-};
-```
-
-</div>
-<div class="fragment fade-in-then-out" data-fragment-index="1">
-
-```cpp [3]
-class RelativePath {
- public:
-  RelativePath(Ribbon path, PositionD current);
-
-
-
-
-
-
-
-
-  Pose3D pose_at_ds(DisplacementD ds) const;
-
- private:
-  std::shared_ptr<const RelativePathImpl> impl_;
-};
-```
-
-</div>
-<div class="fragment fade-in-then-out" data-fragment-index="2">
-
-```cpp [5-6]
-class RelativePath {
- public:
-  RelativePath(Ribbon path, PositionD current);
-
-  explicit(false)
-  RelativePath(Pose3D pose);
-
-
-
-
-
-  Pose3D pose_at_ds(DisplacementD ds) const;
-
- private:
-  std::shared_ptr<const RelativePathImpl> impl_;
-};
-```
-
-</div>
-<div class="fragment fade-in-then-out" data-fragment-index="3">
-
-```cpp [8-10]
-class RelativePath {
- public:
-  RelativePath(Ribbon path, PositionD current);
-
-  explicit(false)
-  RelativePath(Pose3D pose);
-
-  RelativePath(
-    RelativePath path,
-    DisplacementD new_zero);
-
-  Pose3D pose_at_ds(DisplacementD ds) const;
-
- private:
-  std::shared_ptr<const RelativePathImpl> impl_;
-};
-```
-
-</div>
-</div>
-<div>
-<div>
-
-```cpp
-// `RelativePath` is a great interface type!
-void set_actor_path(RelativePath path);
-```
-
-</div>
-<div class="r-stack nolinenum">
-<div class="fragment fade-in-then-out" data-fragment-index="1">
-
-```cpp
-// Pass Ribbon-and-Position as a pair.
-set_actor_path({nominal_path(lane), 40_m_pos});
-
-
-
-
-
-
-
-
-
-
-
-```
-
-</div>
-<div class="fragment fade-in-then-out" data-fragment-index="2">
-
-```cpp [4-9]
-// Pass Ribbon-and-Position as a pair.
-set_actor_path({nominal_path(lane), 40_m_pos});
-
-// Pass a pose; get a straight path through the pose!
-set_actor_path(
-  right_boundary(lane)
-    .pose_at(50_m_pos)
-    .turn_left()
-    .move_backwards(3_m));
-
-
-
-
-```
-
-</div>
-<div class="fragment fade-in-then-out" data-fragment-index="3">
-
-```cpp [11-12]
-// Pass Ribbon-and-Position as a pair.
-set_actor_path({nominal_path(lane), 40_m_pos});
-
-// Pass a pose; get a straight path through the pose!
-set_actor_path(
-  right_boundary(lane)
-    .pose_at(50_m_pos)
-    .turn_left()
-    .move_backwards(3_m));
-
-// "Tare" the relative path at a new zero.
-set_actor_path({ego_path, -50_m});
-```
-
-</div>
-</div>
-</div>
-</div>
-
-Notes:
-
-- Can be nice to bundle ribbon and position
-  - This gives us "relative path", a really handy interface type
-  - Note how pose is indexed by **physical displacement**, not position labels:
-    - "After moving a signed distance `ds`, where am I?"
-  - Here's an example API that takes a `RelativePath`.
-    - Let's see some callsites and their constructors
-- Pass ribbon and position as braced pair
-  - Easy to understand what is meant
-- Pass a bare pose: implicitly converts to straight path through pose
-- "Tare" the relative path at a new zero: move the path
-  - Somebody following our path, and they're _currently_ 50 meters back
-- Now that we're solid on paths, let's talk about along-path motion
-
----
-
-## `Motion`: speed profiles
-
-$dt \rightarrow \left(ds, \frac{ds}{dt}, \frac{d^2s}{dt^2}\right)$
-
-<div class="container">
-<div class="r-stack nolinenum">
-<div class="fragment fade-in-then-out" data-fragment-index="1">
-
-```cpp
-class Motion {
- public:
-  explicit Motion(
-    std::shared_ptr<const MotionImplementation> impl);
-
-
-
-
-
- private:
-  std::shared_ptr<const MotionImplementation> impl_;
-};
-```
-
-</div>
-<div class="fragment fade-in" data-fragment-index="2">
-
-```cpp [1,8,12]
-class Motion {
- public:
-  explicit Motion(
-    std::shared_ptr<const MotionImplementation> impl);
-
-
-
-  MotionSnapshot snapshot_at(DurationD dt) const;
-
- private:
-  std::shared_ptr<const MotionImplementation> impl_;
-};
-```
-
-</div>
-<div class="fragment fade-in" data-fragment-index="3">
-
-```cpp [6]
-class Motion {
- public:
-  explicit Motion(
-    std::shared_ptr<const MotionImplementation> impl);
-
-  explicit(false) Motion(VelocityD constant_speed);
-
-  MotionSnapshot snapshot_at(DurationD dt) const;
-
- private:
-  std::shared_ptr<const MotionImplementation> impl_;
-};
-```
-
-</div>
-</div>
-
-<div class="r-stack nolinenum">
-<div class="fragment fade-in-then-out" data-fragment-index="2">
-
-```cpp
-struct MotionSnapshot {
-  DisplacementD displacement = ZERO;
-  VelocityD velocity = ZERO;
-  AccelerationD acceleration = ZERO;
-};
-
-
-```
-
-</div>
-<div class="fragment fade-in" data-fragment-index="3">
-
-```cpp [6]
-struct MotionSnapshot {
-  DisplacementD displacement = ZERO;
-  VelocityD velocity = ZERO;
-  AccelerationD acceleration = ZERO;
-};
-
-
-```
-
-</div>
-</div>
-</div>
-
-Notes:
-
-- `Motion` maps time onto along-path displacement and its derivatives
-- Use same strategy: shared-ptr-to-const, value semantics, hide polymorphism
-- Returns `MotionSnapshot`: along-path displacement, velocity, acceleration
-- Implicitly constructible from speed
-  - Covers 95% of use cases
-  - Interface should take a motion; you can pass `20 * m / s`, `65 * MPH`, etc.
-  - Later on, more complicated motions like braking:
-    - Make builders.  Add functionality with no extra cost
-
----
-
-## `RelativePath` and `Motion` compose
-
-`Motion`: $\ \ \ dt \rightarrow \left(ds, \frac{ds}{dt}, \frac{d^2s}{dt^2}\right)$
-
-`RelativePath`: $\ \ \ ds \rightarrow \left(\text{pose}, \text{curvature}\right)$
-
-<div class="fragment fade-in">
-
-```cpp
-const auto [ds, v, a] = motion.snapshot_at(dt);
-const auto [pose, curvature] = path.point_at_ds(ds);
-```
-
-</div>
-
-Notes:
-
-- (Explain mapping)
-  - Note: we're using the fuller, curvature API here
-- A scene described in terms of `Ribbon` and `Motion` is not static!
-  - Can query at near-past and near-future times!
-  - History; predictions
-  - Motion is **self-consistent**:
-    - You get a pose and velocity
-    - Pose a short time later is what velocity would predict
 
 ---
 
@@ -1151,239 +1419,35 @@ Notes:
 
 ## Two clients for sketches
 
-<div class="container">
-<div class="fragment fade-in" data-fragment-index="1">
-<h3>Test Authors</h3>
-
-- Known road
-- APIs emphasize _callsite readability_
-  - Use errors liberally<br>as nudges
-
-<div class="r-stack nolinenum">
-<div class="fragment fade-in-then-out" data-fragment-index="2">
-
-```cpp
-right_lane(road); // Or, instead:
-only_lane(road);
-
-
-
-
-
-```
-
-</div>
-<div class="fragment fade-in-then-out" data-fragment-index="3">
-
-```cpp [4]
-right_lane(road); // Or, instead:
-only_lane(road);
-
-left_neighbor(right_lane(road));
-
-
-
-```
-
-</div>
-<div class="fragment fade-in-then-out" data-fragment-index="4">
-
-```cpp [6,]
-right_lane(road); // Or, instead:
-only_lane(road);
-
-left_neighbor(right_lane(road));
-
-speed_limit(road);
-```
-
-</div>
-<div class="fragment fade-in" data-fragment-index="5">
-
-```cpp
-right_lane(road); // Or, instead:
-only_lane(road);
-
-left_neighbor(right_lane(road));
-
-speed_limit(road);
-```
-
-</div>
-<div class="fragment fade-in" data-fragment-index="6">
-
-```cpp [1-2]
-right_lane(road); // Or, instead:
-only_lane(road);
-
-left_neighbor(right_lane(road));
-
-speed_limit(road);
-```
-
-</div>
-<div class="fragment fade-in" data-fragment-index="7">
-
-```cpp [3]
-right_lane(road); // Or, instead:
-only_lane(road);
-
-left_neighbor(right_lane(road));
-
-speed_limit(road);
-```
-
-</div>
-<div class="fragment fade-in" data-fragment-index="8">
-
-```cpp [4]
-right_lane(road); // Or, instead:
-only_lane(road);
-
-left_neighbor(right_lane(road));
-
-speed_limit(road);
-```
-
-</div>
-<div class="fragment fade-in" data-fragment-index="9">
-
-```cpp [6]
-right_lane(road); // Or, instead:
-only_lane(road);
-
-left_neighbor(right_lane(road));
-
-speed_limit(road);
-```
-
-</div>
-</div>
-
-</div>
-
-<div>
-<img src="./figures/map-sketch/persp_08.png">
-<img src="./figures/map-sketch/top_08.png">
-</div>
-
-<div class="fragment fade-in" data-fragment-index="5">
-<h3>Libraries</h3>
-
-- Must handle _all possible roads_
-- Iterate over lanes
-- Partitioned into constant regions
-- **"Clunky, yet precise"**
-
-<div class="r-stack nolinenum">
-<div class="fragment fade-in-then-out" data-fragment-index="6">
-
-```cpp
-for (const auto lane : road) {
-
-
-
-
-
-
-
-
-}
-```
-
-</div>
-<div class="fragment fade-in-then-out" data-fragment-index="7">
-
-```cpp [2-9]
-for (const auto lane : road) {
-  auto positions =
-    sample_positions(lane);
-
-  for (const auto p : positions) {
-
-
-
-  }
-}
-```
-
-</div>
-<div class="fragment fade-in-then-out" data-fragment-index="8">
-
-```cpp [6]
-for (const auto lane : road) {
-  auto positions =
-    sample_positions(lane);
-
-  for (const auto p : positions) {
-    left_neighbor_point_at(p, lane);
-
-
-  }
-}
-```
-
-</div>
-<div class="fragment fade-in-then-out" data-fragment-index="9">
-
-```cpp [8]
-for (const auto lane : road) {
-  auto positions =
-    sample_positions(lane);
-
-  for (const auto p : positions) {
-    left_neighbor_point_at(p, lane);
-
-    speed_limit_point_at(p, lane);
-  }
-}
-```
-
-</div>
-</div>
-</div>
-
+<div class="r-stack two-clients">
+<img src="./figures/map-sketch-deps/deps_0.svg">
+<img class="fragment" src="./figures/map-sketch-deps/deps_1.svg">
+<img class="fragment" src="./figures/map-sketch-deps/deps_2.svg">
+<img class="fragment" src="./figures/map-sketch-deps/deps_3.svg">
 </div>
 
 Notes:
 
-- Two clients, two sets of interfaces
-- Test authors know their road
-  - Pick a named feature you know is there
-  - Error if it's not, _or if you chose a weird name_
-- Test _libraries_ need to handle _all possible_ roads
-  - These interfaces _iterate_ over lanes, _iterate_ over regions in a lane, etc.
-- The tests you can make depend on what libraries you have on the right side...
-
----
-
-## Tests that `RoadSketch` unlocks
-
-<div class="r-stack">
-<img class="fragment fade-in-then-out" data-fragment-index="1" src="./figures/road-sketch-unlocks/unit-tests.svg">
-<div class="fragment fade-in-then-out" data-fragment-index="2">
-  <video style="width: 90%;">
-    <source src="./figures/road-sketch-unlocks/streams.webm" type="video/webm" style="width: 50%">
-  </video>
-</div>
-<img class="fragment fade-in-then-out" data-fragment-index="3" src="./figures/road-sketch-unlocks/unit-tests.svg">
-<img class="fragment fade-in-then-out" data-fragment-index="4" src="./figures/road-sketch-unlocks/full-planner-tests-01.svg">
-<img class="fragment fade-in-then-out" data-fragment-index="5" src="./figures/road-sketch-unlocks/full-planner-tests-02.svg">
-<img class="fragment fade-in-then-out" data-fragment-index="6" src="./figures/road-sketch-unlocks/full-planner-tests-03.svg">
-</div>
-
-Notes:
-
-- MP uses optimized rep for lanes/paths, called "streams"
-  - Pretty easy to make streams from road sketch
-  - Unlocks unit tests for many functions
-    - Legit complicated inputs, made way easier!
-
-- Holy grail integration test: "just run the planner"
-  - Need to make a full AV map that is **consistent** with road sketch
-    - Remember: it's not a road, just a high level description
-  - No map maker, no planner tests
-  - Feasible, but didn't do it b/c of _opportunity cost_
+- One way: "bucket of well named paths"
+  - Place actors in the scene
+  - "nominal path of left lane"
+- But, also need to get real map data to pass functions
+  - Map sketch is not a map!
+    - It's high level description
+  - What's the dependency relationship?
+- No dependency!  Neither knows about the other
+  - Builder **iterates** over data in map sketch
+  - Builds whatever kind of map data you're making
+- Two separate APIs
+  - In tests, you know all details of map
+    - Use simplest term: "right lane of road" when that's unambiguous
+  - In libs, you must handle all maps
+    - Iterate over lanes
+    - Iterate over regions where properties are piecewise constant
+    - "Clunky yet precise"
+  - Some effort to build map data
+    - **already have** map data?  Another option...
+    - Just lacks human-usable paths
 
 ---
 
@@ -1403,15 +1467,15 @@ class Hwy3LanesWExit {
  public:
   Hwy3LanesWExit();
 
-  friend Lane left_lane(const Hwy3LanesWExit &h) {
-    return h.left_;
-  }
 
-  friend Position split_point(const Hwy3LanesWExit&) {
-    return 0_m_pos;
-  }
 
-  // ...
+
+
+
+
+
+
+
 
  private:
   AVMap map_;
@@ -1459,6 +1523,61 @@ class Hwy3LanesWExit {
 <div class="fragment fade-in-then-out" data-fragment-index="3">
 
 ```cpp
+class Hwy3LanesWExit {
+ public:
+  Hwy3LanesWExit();
+
+  friend Lane left_lane(const Hwy3LanesWExit &h) {
+    return h.left_;
+  }
+
+  friend Position split_point(const Hwy3LanesWExit&) {
+    return 0_m_pos;
+  }
+
+  // ...
+
+ private:
+  AVMap map_;
+
+  Lane left_;
+  Lane center_;
+  Lane right_;
+  Lane exit;
+
+  PositionD start_position_;
+};
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="4">
+
+```cpp
+Hwy3LanesWExit::Hwy3LanesWExit() :
+  map_{fetch_map("hwy_3_lanes_w_exit"), "f7a4fff3"},
+  left_{
+    .map=map_,
+    .path={"a43b8847", "cd3eede8", "07d85409"},
+    .left_bound={"45493fb2", "1e963a78", "dff6e747"},
+    .right_bound={"e45657dd", "e196e064", "7efc19fc"},
+  },
+  center_{
+    .map=map_,
+    .path={"9ba58c68", "7e04b76a", "25877bfd"},
+    .left_bound={"18389e4c", "95ad65dd", "8d544a9b"},
+    .right_bound={"66e3b528", "6280f64d", "ec46cb72"},
+    .align_to=left_,
+  },
+  right_{ /* ... */ },
+  exit_{ /* ... */ },
+  start_position_{path_length({"a43b8847", "cd3eede8"})}
+  {}
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="5">
+
+```cpp [3,14]
 Hwy3LanesWExit::Hwy3LanesWExit() :
   map_{fetch_map("hwy_3_lanes_w_exit"), "f7a4fff3"},
   left_{
@@ -1485,22 +1604,22 @@ Hwy3LanesWExit::Hwy3LanesWExit() :
 </div>
 
 <div>
-<img class="fragment fade-in-then-out" data-fragment-index="2" src="./figures/backdrops/graph.png" style="width: 70%;">
+<img class="fragment fade-in-then-out" data-fragment-index="3" src="./figures/backdrops/graph.png" style="width: 70%;">
 </div>
 </div>
 
 Notes:
 
-- Backdrop: two jobs: hold real map; provide nice path objects
+- So, add nice paths to real map: "backdrop"
   - What _is_ it?
-  - class with data members you'd expect
-  - hidden friend functions
-- To construct:
-  - Look at topological graph from map
-  - Find boundaries and paths
-  - Align subsequent paths
+- class with data members you'd expect
+- hidden friend functions
+  - aesthetic choice: "left lane of map"
+- To construct, view raw map data...
+- Add sequences of GUIDs for segments
+- Make sure lanes are aligned
   - Unit tests!
-- Labor intensive, but gives full map
+  - Labor intensive, but gives full map + nice paths
 
 ---
 
@@ -1512,24 +1631,24 @@ Notes:
     <th>Map Sketch</th>
     <th>Backdrops</th>
   </tr>
-  <tr>
-    <td>Using</td>
+  <tr class="fragment">
+    <td>Using One</td>
     <td class="good">Easy</td>
     <td class="good">Easy</td>
   </tr>
-  <tr>
-    <td>Making</td>
+  <tr class="fragment">
+    <td>Making One</td>
     <td class="good">Easy</td>
     <td class="poor">Very labor intensive</td>
   </tr>
-  <tr>
+  <tr class="fragment">
     <td>Fidelity</td>
     <td class="fair">OK, but needs big investment</td>
     <td class="good">Perfect</td>
   </tr>
-  <tr>
+  <tr class="fragment">
     <td>Startup cost</td>
-    <td class="fair">Moderate (or high for full maps)</td>
+    <td class="poor">High</td>
     <td class="good">Low technical risk</td>
   </tr>
 </table>
@@ -1552,13 +1671,13 @@ Notes:
 ## Scene Builder: Interfaces (core)
 
 <div class="r-stack nolinenum">
-<div class="fragment fade-in-then-out" data-fragment-index="1" style="width: 100%;">
+<div class="fragment fade-out" data-fragment-index="2" style="width: 100%;">
 
 ```cpp
 TEST_F(MotionPlanner, CanRunInTest) {
   const auto road = HighwayMergeWithSubsequentExit{};
 
-  const auto ego_position = merge_completion_position(road) - 300 * m;
+  const auto ego_position = merge_start_position(road) - 65 * m;
   const auto cycle_result =
     SceneBuilder{
       {
@@ -1581,7 +1700,7 @@ TEST_F(MotionPlanner, CanRunInTest) {
 TEST_F(MotionPlanner, CanRunInTest) {
   const auto road = HighwayMergeWithSubsequentExit{};
 
-  const auto ego_position = merge_completion_position(road) - 300 * m;
+  const auto ego_position = merge_start_position(road) - 65 * m;
   const auto cycle_result =
     SceneBuilder{
       {
@@ -1604,7 +1723,7 @@ TEST_F(MotionPlanner, CanRunInTest) {
 TEST_F(MotionPlanner, CanRunInTest) {
   const auto road = HighwayMergeWithSubsequentExit{};
 
-  const auto ego_position = merge_completion_position(road) - 300 * m;
+  const auto ego_position = merge_start_position(road) - 65 * m;
   const auto cycle_result =
     SceneBuilder{
       {
@@ -1627,7 +1746,7 @@ TEST_F(MotionPlanner, CanRunInTest) {
 TEST_F(MotionPlanner, CanRunInTest) {
   const auto road = HighwayMergeWithSubsequentExit{};
 
-  const auto ego_position = merge_completion_position(road) - 300 * m;
+  const auto ego_position = merge_start_position(road) - 65 * m;
   const auto cycle_result =
     SceneBuilder{
       {
@@ -1650,7 +1769,7 @@ TEST_F(MotionPlanner, CanRunInTest) {
 TEST_F(MotionPlanner, CanRunInTest) {
   const auto road = HighwayMergeWithSubsequentExit{};
 
-  const auto ego_position = merge_completion_position(road) - 300 * m;
+  const auto ego_position = merge_start_position(road) - 65 * m;
   const auto cycle_result =
     SceneBuilder{
       {
@@ -1678,7 +1797,7 @@ TEST_F(MotionPlanner, CanRunInTest) {
 TEST_F(MotionPlanner, CanRunInTest) {
   const auto road = HighwayMergeWithSubsequentExit{};
 
-  const auto ego_position = merge_completion_position(road) - 300 * m;
+  const auto ego_position = merge_start_position(road) - 65 * m;
   const auto cycle_result =
     SceneBuilder{
       {
@@ -1702,33 +1821,136 @@ Notes:
 - Describing scene: two kinds of inputs: constructor params, and chainable setters
   - Constructor: things you need every single time
   - Setters: more optional things
-- Core data
-  - Map
-  - Goal
-  - Ego path
-  - Ego motion
-- Can we picture this scene?
+- Core data: map
+- Goal
+- Ego path
+- Ego motion
+  - Can we picture this scene?
   - In the right lane
-  - Merge finishes 300 m ahead
+  - Merge starts 65 m ahead
   - Exit after the merge
 - Let's see
-  - Distance rings show about 300 m back
+  - Distance rings show about 65 m back
   - Can see the merge, and the exit up ahead
 - Readable test source code, says everything we care about, nothing we don't, backed up by vis
+  - Now let's look at some setters
 
 ---
 
 ## Putting actors in the scene
 
 <div class="container">
-<div class="fragment fade-in" data-fragment-index="1">
+<div>
 
 #### Actor _Sketch_
 
 <div class="r-stack nolinenum">
-<div class="fragment fade-out" data-fragment-index="2">
+<div>
 
 ```cpp
+class ActorSketch {
+ public:
+  Pose3D ground_pose(DurationD dt = ZERO) const;
+  DisplacementD length() const;
+  // ...
+
+
+
+
+
+};
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="1">
+
+```cpp [9-10]
+class ActorSketch {
+ public:
+  Pose3D ground_pose(DurationD dt = ZERO) const;
+  DisplacementD length() const;
+  // ...
+
+
+
+ private:
+  ActorSketchData data_;
+};
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="4">
+
+```cpp [7]
+class ActorSketch {
+ public:
+  Pose3D ground_pose(DurationD dt = ZERO) const;
+  DisplacementD length() const;
+  // ...
+
+  perception::Actor convert_to_actor();
+
+ private:
+  ActorSketchData data_;
+};
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="5">
+
+```cpp [6]
+class ActorSketch {
+ public:
+  Pose3D ground_pose(DurationD dt = ZERO) const;
+  DisplacementD length() const;
+  // ...
+
+  perception::Actor convert_to_actor();
+
+ private:
+  ActorSketchData data_;
+};
+```
+
+</div>
+</div>
+
+<div class="r-stack nolinenum">
+<div class="fragment fade-in" data-fragment-index="1">
+
+```cpp
+struct ActorSketchData {
+  int64_t id;
+
+
+
+
+
+
+};
+
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="2">
+
+```cpp [4-5]
+struct ActorSketchData {
+  int64_t id;
+
+  RelativePath path;
+  Motion motion;
+
+
+
+};
+
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="3">
+
+```cpp [7-8]
 struct ActorSketchData {
   int64_t id;
 
@@ -1742,7 +1964,23 @@ struct ActorSketchData {
 ```
 
 </div>
-<div class="fragment fade-in" data-fragment-index="2">
+<div class="fragment fade-in" data-fragment-index="4">
+
+```cpp [4-5]
+struct ActorSketchData {
+  int64_t id;
+
+  RelativePath path;
+  Motion motion;
+
+  ActorCategory category;
+  Eigen::Vector3d extents_m;
+};
+
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="5">
 
 ```cpp [3]
 struct ActorSketchData {
@@ -1759,47 +1997,12 @@ struct ActorSketchData {
 
 </div>
 </div>
-<div class="r-stack nolinenum">
-<div class="fragment fade-in" data-fragment-index="2">
-
-```cpp
-class ActorSketch {
- public:
-  Pose3D ground_pose(DurationD dt = ZERO) const;
-  DisplacementD length() const;
-  // ...
-
-  perception::Actor convert_to_actor();
-
- private:
-  ActorSketchData data_;
-};
-```
-
 </div>
-<div class="fragment fade-in" data-fragment-index="3">
-
-```cpp
-class ActorSketch {
- public:
-  Pose3D ground_pose(DurationD dt = ZERO) const;
-  DisplacementD length() const;
-  // ...
-
-  perception::Actor convert_to_actor();
-
- private:
-  ActorSketchData data_;
-};
-```
-
-</div>
-</div>
-</div>
-<div class="fragment fade-in" data-fragment-index="3">
+<div class="fragment fade-in" data-fragment-index="5">
 
 #### Actor _Sketcher_
 
+<div class="r-stack nolinenum">
 <div>
 
 ```cpp
@@ -1817,9 +2020,45 @@ class ActorSketcher {
 ```
 
 </div>
-<div class="fragment fade-in" data-fragment-index="4">
+<div class="fragment fade-in" data-fragment-index="6">
+
+```cpp [4]
+class ActorSketcher {
+ public:
+  explicit ActorSketcher(RelativePath path);
+
+  ActorSketcher &set_motion(Motion motion);
+  ActorSketcher &set_category(ActorCategory category);
+  ActorSketcher &set_length(DisplacementD length);
+  // ...
+
+  ActorSketch sketch();
+};
+```
+
+</div>
+</div>
+<div class="r-stack nolinenum">
+<div class="fragment fade-in" data-fragment-index="6">
 
 ```cpp
+ActorSketcher car_sketcher(RelativePath path) {
+  return ActorSketcher{path}
+    .set_category(ActorCategory::VEHICLE)
+    .set_length(4.5 * m);
+    .set_width(2.0 * m);
+    .set_height(1.5 * m);
+}
+
+
+
+
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="7">
+
+```cpp [9-10]
 ActorSketcher car_sketcher(RelativePath path) {
   return ActorSketcher{path}
     .set_category(ActorCategory::VEHICLE)
@@ -1835,32 +2074,36 @@ ActorSketcher pedestrian_sketcher(RelativePath path);
 </div>
 </div>
 </div>
+</div>
 
 Notes:
 
 - We use _sketches_: high level descriptions of actors.
-  - Data includes an ID, path-and-motion, actor type, and 3D extents
-  - They're always boxes; still lets us write almost every desired test
-- Can query properties, such as ground pose, length, etc.
-  - Can convert to a "real" actor type
-  - _Including a dynamically self-consistent sequence of historical observations_
+  - Can query properties...
+- Data includes an ID,
+- path-and-motion,
+- actor type, and 3D extents
+- Can convert to a "real" actor type
+  - _Including a kinematically self-consistent sequence of historical observations_
     - Perception actor has this, _you get this for free_
 - We make this with an **actor sketcher**.  Here's the generic version
-  - Must supply path: defaults to stopped
-  - Set the motion, type, etc. as desired
-  - Call `.sketch()` when done
+  - (describe...)
   - OK, but verbose
-- Pre-configured actor sketchers show intent: car, truck, pedestrian, etc.
+- Pre-configured actor sketchers show intent:
+  - Car: set category, make car-sized
+- truck sketcher, pedestrian sketcher, etc.
   - Prefer these
 
 ---
 
 ## Scene Builder: Adding actors
 
+<div class="container_75_25">
 <div class="r-stack nolinenum">
-<div class="fragment fade-in-then-out" data-fragment-index="1" style="width: 100%;">
+<div>
 
 ```cpp
+
 
 
 
@@ -1887,11 +2130,12 @@ const auto cycle_result =
 ```
 
 </div>
-<div class="fragment fade-in-then-out" data-fragment-index="2" style="width: 100%;">
+<div class="fragment fade-in-then-out" data-fragment-index="2">
 
-```cpp [1-3,21]
+```cpp [1-4,22]
 const auto car = car_sketcher({nominal_path(onramp(road)), ego_position})
   .set_motion(65 * MPH)
+
   .sketch()
 
 
@@ -1916,11 +2160,12 @@ const auto cycle_result =
 ```
 
 </div>
-<div class="fragment fade-in-then-out" data-fragment-index="3" style="width: 100%;">
+<div class="fragment fade-in-then-out" data-fragment-index="3">
 
-```cpp [2]
+```cpp [2-3]
 const auto car = car_sketcher({nominal_path(onramp(road)), ego_position})
-  .set_motion(accelerating_from(35 * MPH).to(75 * MPH).at(2 * m / s / s).currently(65 * MPH))
+  .set_motion(
+    accelerating_from(35 * MPH).to(75 * MPH).at(2 * m/s/s).currently(65 * MPH))
   .sketch()
 
 
@@ -1945,11 +2190,12 @@ const auto cycle_result =
 ```
 
 </div>
-<div class="fragment fade-in-then-out" data-fragment-index="4" style="width: 100%;">
+<div class="fragment fade-in-then-out" data-fragment-index="4">
 
-```cpp [5-9,22]
+```cpp [6-10,23]
 const auto car = car_sketcher({nominal_path(onramp(road)), ego_position})
-  .set_motion(accelerating_from(35 * MPH).to(75 * MPH).at(2 * m / s / s).currently(65 * MPH))
+  .set_motion(
+    accelerating_from(35 * MPH).to(75 * MPH).at(2 * m/s/s).currently(65 * MPH))
   .sketch()
 
 const auto ped = pedestrian_sketcher({right_boundary(onramp(road))
@@ -1974,11 +2220,12 @@ const auto cycle_result =
 ```
 
 </div>
-<div class="fragment fade-in" data-fragment-index="5" style="width: 100%;">
+<div class="fragment fade-in" data-fragment-index="5">
 
 ```cpp
 const auto car = car_sketcher({nominal_path(onramp(road)), ego_position})
-  .set_motion(accelerating_from(35 * MPH).to(75 * MPH).at(2 * m / s / s).currently(65 * MPH))
+  .set_motion(
+    accelerating_from(35 * MPH).to(75 * MPH).at(2 * m/s/s).currently(65 * MPH))
   .sketch()
 
 const auto ped = pedestrian_sketcher({right_boundary(onramp(road))
@@ -2003,27 +2250,26 @@ const auto cycle_result =
 ```
 
 </div>
-<img class="fragment fade-in" data-fragment-index="6" src="./figures/scene-builder-actors/scene_01.png">
+</div>
+<div class="r-stack">
+<img src="./figures/scene-builder-actors/scene_01.png">
 <img class="fragment fade-in" data-fragment-index="7" src="./figures/scene-builder-actors/scene_02.png">
+</div>
 </div>
 
 Notes:
 
 - Now let's add some actors!
-- Recall: here's our old scene
+  - Recall: here's our old scene
 - Add a car on the on-ramp at our same position (same "mile marker"), doing 65
 - Could use a more realistic scenario, getting up to speed
   - `accelerating_from`: a motion builder
     - Could you write it?  (Yeah!)
     - Didn't change our car sketcher, but when we wrote this motion builder, it got more powerful!
 - Now add pedestrian facing the on ramp, 3 m away, stopped.
-  - Thinking.
-  - "Don't do it, pedestrian!  Bad idea!"
 - _Can you picture this scene?_
-- Here's the old scene: picture car and pedestrian... aaaand...
 - Yes, there they are!
-  - Apology: can only see positions
-  - This is most important; we believe speed/facing are correct too
+  - Can't vis acceleration; sorry
 
 ---
 
@@ -2150,7 +2396,206 @@ Notes:
 ## Blockage example
 
 <div class="container">
+<div class="r-stack nolinenum">
 <div>
+
+```cpp
+const auto road = TwoLaneStraightRoad{};
+
+const auto ego_position = 0_m_pos;
+
+
+
+
+
+
+
+
+
+const auto result =
+  SceneBuilder{
+    {
+      .map = road,
+      .goal = final_pose(left_lane(road)),
+      .ego_path =
+        {
+          nominal_path(left_lane(road)),
+          ego_position,
+        },
+      .ego_motion = 65 * MPH,
+    },
+  }
+
+    .run_cycle_through(RANKER);
+```
+
+</div>
+<div class="fragment" data-fragment-index="1">
+
+```cpp [5,26]
+const auto road = TwoLaneStraightRoad{};
+
+const auto ego_position = 0_m_pos;
+
+const auto construction =
+
+
+
+
+
+
+
+const auto result =
+  SceneBuilder{
+    {
+      .map = road,
+      .goal = final_pose(left_lane(road)),
+      .ego_path =
+        {
+          nominal_path(left_lane(road)),
+          ego_position,
+        },
+      .ego_motion = 65 * MPH,
+    },
+  }
+    .add_blockage(construction)
+    .run_cycle_through(RANKER);
+```
+
+</div>
+<div class="fragment" data-fragment-index="2">
+
+```cpp [5,6-7,26]
+const auto road = TwoLaneStraightRoad{};
+
+const auto ego_position = 0_m_pos;
+
+const auto construction =
+  block_left_side_along(
+      right_boundary(left_lane(road)))
+
+
+
+
+
+const auto result =
+  SceneBuilder{
+    {
+      .map = road,
+      .goal = final_pose(left_lane(road)),
+      .ego_path =
+        {
+          nominal_path(left_lane(road)),
+          ego_position,
+        },
+      .ego_motion = 65 * MPH,
+    },
+  }
+    .add_blockage(construction)
+    .run_cycle_through(RANKER);
+```
+
+</div>
+<div class="fragment" data-fragment-index="3">
+
+```cpp [5,8-9,26]
+const auto road = TwoLaneStraightRoad{};
+
+const auto ego_position = 0_m_pos;
+
+const auto construction =
+  block_left_side_along(
+      right_boundary(left_lane(road)))
+    .from(ego_position + 50 * m,
+      MoveLeft{width(left_lane(road))})
+
+
+
+const auto result =
+  SceneBuilder{
+    {
+      .map = road,
+      .goal = final_pose(left_lane(road)),
+      .ego_path =
+        {
+          nominal_path(left_lane(road)),
+          ego_position,
+        },
+      .ego_motion = 65 * MPH,
+    },
+  }
+    .add_blockage(construction)
+    .run_cycle_through(RANKER);
+```
+
+</div>
+<div class="fragment" data-fragment-index="4">
+
+```cpp [5,10,26]
+const auto road = TwoLaneStraightRoad{};
+
+const auto ego_position = 0_m_pos;
+
+const auto construction =
+  block_left_side_along(
+      right_boundary(left_lane(road)))
+    .from(ego_position + 50 * m,
+      MoveLeft{width(left_lane(road))})
+    .through(ego_position + 100 * m)
+
+
+const auto result =
+  SceneBuilder{
+    {
+      .map = road,
+      .goal = final_pose(left_lane(road)),
+      .ego_path =
+        {
+          nominal_path(left_lane(road)),
+          ego_position,
+        },
+      .ego_motion = 65 * MPH,
+    },
+  }
+    .add_blockage(construction)
+    .run_cycle_through(RANKER);
+```
+
+</div>
+<div class="fragment" data-fragment-index="5">
+
+```cpp [5,11,26]
+const auto road = TwoLaneStraightRoad{};
+
+const auto ego_position = 0_m_pos;
+
+const auto construction =
+  block_left_side_along(
+      right_boundary(left_lane(road)))
+    .from(ego_position + 50 * m,
+      MoveLeft{width(left_lane(road))})
+    .through(ego_position + 100 * m)
+    .to(ego_position + 250 * m);
+
+const auto result =
+  SceneBuilder{
+    {
+      .map = road,
+      .goal = final_pose(left_lane(road)),
+      .ego_path =
+        {
+          nominal_path(left_lane(road)),
+          ego_position,
+        },
+      .ego_motion = 65 * MPH,
+    },
+  }
+    .add_blockage(construction)
+    .run_cycle_through(RANKER);
+```
+
+</div>
+<div class="fragment" data-fragment-index="6">
 
 ```cpp [5-11,26]
 const auto road = TwoLaneStraightRoad{};
@@ -2183,17 +2628,16 @@ const auto result =
 ```
 
 </div>
+</div>
 
 <div>
 <div class="r-stack">
 <img src="./figures/construction-tests/persp_01.png">
-<img class="fragment fade-in" data-fragment-index="1" src="./figures/construction-tests/persp_02.png">
-<img class="fragment fade-in" data-fragment-index="2" src="./figures/construction-tests/persp_03.png">
+<img class="fragment fade-in" data-fragment-index="7" src="./figures/construction-tests/persp_02.png">
 </div>
 <div class="r-stack">
 <img src="./figures/construction-tests/top_01.png">
-<img class="fragment fade-in" data-fragment-index="1" src="./figures/construction-tests/top_02.png">
-<img class="fragment fade-in" data-fragment-index="2" src="./figures/construction-tests/top_03.png">
+<img class="fragment fade-in" data-fragment-index="7" src="./figures/construction-tests/top_02.png">
 </div>
 </div>
 </div>
@@ -2201,14 +2645,16 @@ const auto result =
 Notes:
 
 - Example
-  - We're in the left lane, two lane road, position zero
-  - Block _left side_ along _right boundary_
-  - Start 50 meters up, moved left by the lane width
-  - Checkpoint at 100 meters, no lateral displacement
-  - Ends at 250 meters
-- What barrels did you picture?  Was it something like this?
-- Here's the detected boundary
-  - Note that tapering is very important
+- Build `construction`, pass to "dot-add-blockage"
+- Block left side along right boundary of our lane
+  - Dashed line is main path
+  - Barrels to the left of it
+- "dot-from": 50 m ahead, left by lane width
+- "dot-through" checkpt later, no lateral displacement (back on main path)
+- "dot-to" 250 m ahead, also on main path
+- Can we picture barrels?
+- Was it something like this?
+  - Note tapering of first pt: important!
 
 ---
 
@@ -2247,7 +2693,10 @@ Notes:
 
 ---
 
-## Blockage test: categorical implementation
+## Test contents are identical
+
+<div class="container_60_40">
+<div class="identical_contents">
 
 ```cpp
 const auto road = TwoLaneStraightRoad{};
@@ -2276,48 +2725,30 @@ const auto selected_plan =
 EXPECT_THAT(selected_plan, PlansLaneChange(Direction::RIGHT));
 ```
 
-Notes:
+</div>
+<div>
 
-- Here's source code for a test when the planner treats construction categorically
+#### Categorical
 
----
+<div class="r-stack">
+<img src="./figures/categorical_vs_continuous/bare_barrels.png">
+<img src="./figures/categorical_vs_continuous/categorical.png">
+</div>
 
-## Blockage test: continuous implementation
+#### Continuous
 
-```cpp
-const auto road = TwoLaneStraightRoad{};
+<div class="r-stack">
+<img src="./figures/categorical_vs_continuous/continuous.png">
+</div>
 
-const auto ego_lane = left_lane(road);
-const auto ego_position = 0_m_pos;
-
-const auto construction =
-  block_left_side_along(right_boundary(ego_lane))
-    .from(ego_position + 50 * m, MoveLeft{width(ego_lane)})
-    .through(ego_position + 100 * m)
-    .to(ego_position + 250 * m);
-
-const auto selected_plan =
-  SceneBuilder{
-    {
-      .map = road,
-      .goal = final_pose(ego_lane),
-      .ego_path = {nominal_path(ego_lane), ego_position},
-      .ego_motion = 65 * MPH,
-    },
-  }
-    .add_blockage(construction)
-    .run_cycle_through(RANKER);
-
-EXPECT_THAT(selected_plan, PlansLaneChange(Direction::RIGHT));
-```
+</div>
+</div>
 
 Notes:
 
-- Here's that test's source code after the planner gets refactored to treat it _quantitatively_
-- Can you spot the differences?
-  - Two: slide title, and slide number
-  - When you write tests in **intent based** way, using **physical features**:
-    - Aaaalll those tests don't need to change when you refactor!
+- Nothing in source code needs to change
+  - due to **intent based** interfaces
+  - and using **physical features**
 
 ---
 
@@ -2372,7 +2803,7 @@ struct EgoState {
 
 </div>
 
-<div>
+<div class="fragment">
 
 ```cpp
 class SceneBuilder {
@@ -2407,12 +2838,12 @@ Notes:
 
 - SceneBuilder functions build up a "scene description"
   - Just a struct to collect hi-level descriptions
-- We can imagine what some of these nested structs are
-  - goal
-  - ego state
-- Fluent API implementations really simple
-  - add actor
-- Not super interesting.
+  - We can imagine what some of these nested structs are
+- goal
+- ego state
+- SB holds SD
+- implementations for fluent APIs: obvious
+  - Not super interesting.
   - How does Scene Description enable running tests?
 
 ---
@@ -2586,10 +3017,38 @@ Notes:
 
 ## Storing planner input messages
 
+<div class="r-stack storing">
+<div>
 <div class="container nolinenum">
 <div>
 
 #### Planner input "tag types"
+
+<div class="r-stack">
+<div>
+
+```cpp
+struct EgoPoseTopic {
+  using MsgType = localization::proto::Pose;
+};
+
+
+
+struct MapTopic {
+  using MsgType = mapping::proto::Map;
+};
+
+
+
+struct ActorsTopic {
+  using MsgType = perception::proto::Actors;
+};
+
+
+```
+
+</div>
+<div class="fragment">
 
 ```cpp
 struct EgoPoseTopic {
@@ -2610,17 +3069,22 @@ struct ActorsTopic {
 constexpr auto ACTORS = ActorsTopic{};
 ```
 
+</div>
+</div>
+<div class="fragment">
+
+#### "All planner inputs"
+
 ```cpp
 using PlannerInputs = std::tuple<
-  EgoPoseTopic,
-  MapTopic,
-  ActorsTopic,
-  // ...
-  >;
+  EgoPoseTopic, MapTopic, ActorsTopic, // ...
+>;
 ```
 
 </div>
+</div>
 <div>
+<div class="fragment">
 
 #### One topic, one message
 
@@ -2632,73 +3096,125 @@ struct TimedMessage {
 };
 ```
 
-#### One topic, multiple messages
+</div>
+
+<div class="fragment">
+
+#### "All messages for one cycle"
 
 ```cpp
-template <typename Topic>
-using TimedMessages =
-  std::vector<TimedMessage<Topic>>;
+TimedMessagesForEachOf<PlannerInputs>;
+
+// Same as:
+// std::tuple<
+//  std::vector<TimedMessage<EgoPoseTopic>>,
+//  std::vector<TimedMessage<MapTopic>>,
+//  std::vector<TimedMessage<ActorsTopic>>,
+//  ...
+// >;
 ```
 
-#### All topics, multiple messages
+</div>
+</div>
+</div>
+</div>
+<div class="fragment fade-in-then-out" style="background-color: yellow;">
 
-```cpp [3-7]
-template <typename TupleT>
-struct TimedMessagesForEach;
+```cpp
+template <typename T>
+struct TimedMessagesForEachOfImpl;
+template <typename T>
+using TimedMessagesForEachOf = typename TimedMessagesForEachOfImpl<T>::type;
 
 template <typename... Topics>
-struct TimedMessagesForEach<std::tuple<Topics...>> {
-  using type = std::tuple<TimedMessages<Topics>...>;
+struct TimedMessagesForEachOfImpl<std::tuple<Topics...>> {
+  using type = std::tuple<std::vector<TimedMessage<Topics>>...>;
 };
 ```
 
 </div>
+<div class="fragment"></div>
 </div>
 
 Notes:
 
-- Planner inputs represented by tag types
-  - We have _canonical instances_ of these types, ready-made values
+- Planner inputs: tag types
+  - Say which msg
+- _Canonical instances_
+  - Pass to APIs
 - Also: tuple of "all planner inputs"
-- For each input: a sequence of timestamped messages
-  - (Mention steps)
-- Has right shape.  Is it usable?
+  - reason, programatically, at compile time, about "all inputs"
+  - Now for msg storage at cycle start
+- Timed msg for topic: "has ..."
+- To get **all** msgs, **all** topics, for a cycle
+  - "timed messages for each of" planner inputs
+  - boils down to tuple of vectors
+- Usual metaprogramming techniques
+  - don't worry about details ("pause on youtube" slide)
+  - start with tuple of topics
+  - get tuple of vectors of timed messages on topics
+- has right shape.  Is it usable?
 
 ---
 
 ## `SceneMessages`: better ergonomics
 
-<div style="width: 50%; margin: auto;">
+<div class="r-stack nolinenum">
+<div style="width: 60%; margin: auto;" class="fragment">
 
 ```cpp
 class SceneMessages {
  public:
+
+
+
+
+
+
+
+ private:
+  TimedMessagesForEachOf<PlannerInputs> data_{};
+};
+```
+
+</div>
+<div style="width: 60%; margin: auto;" class="fragment">
+
+```cpp [3-8]
+class SceneMessages {
+ public:
   template <typename Topic>
-  TimedMessages<Topic> &operator[](Topic) {
-    return std::get<TimedMessages<Tag>>(data_);
+  std::vector<TimedMessage<Topic>> &operator[](Topic) {
+    return std::get<std::vector<TimedMessage<Tag>>>(data_);
   }
 
   // Also a `const` version, naturally...
 
  private:
-  TimedMessagesForEach<PlannerInputs> data_{};
+  TimedMessagesForEachOf<PlannerInputs> data_{};
 };
 ```
 
+</div>
 </div>
 
 <div class="container nolinenum">
 
 <div>
 
+#### Using raw `TimedMessagesForEachOf`
+
 ```cpp
-TimedMessagesForEach<PlannerInputs> messages;
-std::get<TimedMessages<EgoPoseTopic>>(messages);
+TimedMessagesForEachOf<PlannerInputs> messages;
+std::get<std::vector<TimedMessage<EgoPoseTopic>>>(
+  messages);
 ```
 
 </div>
 
-<div>
+<div class="fragment">
+
+#### Using `SceneMessages`
 
 ```cpp
 SceneMessages messages;
@@ -2712,21 +3228,23 @@ messages[EGO_POSE];
 Notes:
 
 - Can make tuple (wordy), and access one vector (clumsy)
-  - End users want: "give me the entry for this topic"
+  - End users want: "give me the msgs for this topic"
 - Wrap in a class
 - Provide square bracket operator, accept tag by **value**
 - Interfaces way more ergonomic!
   - "Feels like" python style associative container
   - All dispatching happens when program is **built**
-- Nice container.  How do we fill it?
+  - Nice container.  How do we fill it?
 
 ---
 
 ## Filling up `SceneMessages`
 
+### Two-phase approach:
+
 <div class="container nolinenum">
 
-<div>
+<div class="fragment">
 
 #### What _times_ would we get this topic?
 
@@ -2738,7 +3256,7 @@ std::vector<Timestamp> default_message_times(
 
 </div>
 
-<div>
+<div class="fragment">
 
 #### What _contents_ would it have, at a _given time_?
 
@@ -2746,8 +3264,6 @@ std::vector<Timestamp> default_message_times(
 EgoPoseTag::MsgType build_message(
   EgoPoseTag,
   const SceneDescription &scene,
-  const DerivedSceneData &derived_data,
-  const SceneMessages &messages_so_far,
   Timestamp t);
 ```
 
@@ -2755,45 +3271,17 @@ EgoPoseTag::MsgType build_message(
 
 </div>
 
-<div style="width: 75%; margin: auto;">
-
-#### Putting them together...
-
-```cpp
-SceneMessages sample(const SceneDescription &scene) {
-  SceneMessages messages{};
-
-  const auto derived_data = preprocess(scene);
-  auto coordinator = make_coordinator(scene); // Whose turn is it?
-  for (const auto &[time, topic] : coordinator) {
-    messages[topic].push_back({  // WARNING: "Slide code"!
-      .publish_time = time,      // (`topic` is really a variant...)
-      .message = build_message(topic, scene, derived_data, messages, time),
-    });
-  }
-
-  return messages;
-}
-```
-
-</div>
-
 Notes:
 
-- Remember: take each topic separately
-  - Another two phase approach (like splitting trajectory into path and motion helped tests)
-
 - Two separate questions for each input type: "_in this situation..._"
-  - What _times_?
-  - What _contents_ at a _given time_?
-- Go together in the natural way
-  - Glossed over a couple things in these interfaces...
-- First, `topic` is a variant
-  - This `push_back` line is what goes _inside_ the matcher
-- Second: can apply _tweaks_ to both _timings_ and _contents_ of msgs.  Why?
-  - Class 8 trucks with nobody in them: incredibly sobering
-    - Need very solid coverage of fault conditions
-  - Let's take a closer look
+- What _times_?
+- What _contents_ at a _given time_?
+  - Separation: important for testing fault conditions
+  - Vanilla SD: "we're in this situation"
+  - _Tweaked_ SD: "we're in this situation, **and**..."
+    - We lost our route
+    - Our pose is invalid
+  - Gotta test what planner does here!
 
 ---
 
@@ -2803,7 +3291,7 @@ Notes:
 <div>
 
 ```cpp
-struct TweakInput {
+struct InputTweak {
   VariantFromTuple<PlannerInputs>
     topic;
 
@@ -2822,7 +3310,7 @@ void apply_to_times(
 
 template <typename Topic>
 void apply_to_contents(
-  InOut<TimedMessages<Topic>> messages);
+  InOut<std::vector<TimedMessage<Topic>>> messages);
 ```
 
 </div>
@@ -2860,10 +3348,10 @@ void apply_to_contents(
 
 Notes:
 
-- An "input tweak" combines a particular input, and some change
-  - Topic variant just tells us which topic we're tweaking
-  - Tweak variant says what to do
-- Tweak type needs two methods
+- An "input tweak" combines
+  - Particular **topic** (first member)
+  - Some **change** to msgs (second member)
+- To be a tweak, type needs two methods
   - times
   - contents
 - Key: **first** choose times, **then** generate message contents
@@ -3065,3 +3553,9 @@ Notes:
 <section data-background="./figures/aurora-truck-car.jpg" data-background-size="contain">
 
 <h1 style="color: white; position: absolute; width: 100%; margin-top: -3em;">Questions?</h1>
+
+Notes:
+
+- How well will this _actually_ generalize?
+  - Would love to hear from you!
+  - I'll take any questions at this time
