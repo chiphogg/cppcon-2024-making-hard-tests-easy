@@ -257,9 +257,9 @@ Notes:
 
 Notes:
 
-- Our example: motion planning
-  - self driving, maybe aerial
-- Learn just enough so anyone can understand the example
+- Example: motion planning component, self driving
+  - don't know self driving?  No problem!
+  - Learn just enough so anyone can understand the example
 
 ---
 
@@ -276,13 +276,13 @@ Notes:
 
 Notes:
 
-- Black box
+- Start with black box: (...)
   - Let's refine
   - Well defined components, communicate by messages
 - Sensors tell us...
-- know which part of the map to fetch
-- plan route that takes us to goal
-- these feed in to **motion planning**
+- fetch map...
+- plan route...
+- these feed in to **motion planner**
   - given situation, produce trajectory (path and speed)
 - controls knows how...
   - Repeat/re-plan multiple times per second
@@ -311,14 +311,18 @@ Notes:
   - Robust, flexible!
     - e.g., reserve emergency maneuvers
     - will do when better than anything else
-  - Inputs to trajectory: **one cycle**
-    - Unit of test
+  - Assess, propose, pick, repeat:
+    - drive truck from A to B
+    - also recipe for winning
+  - From inputs to trajectory: **one cycle**
     - What are we testing?
       - Whole thing
       - Any stage
       - Any sub-stage
-- Problem reduces to making **these inputs**
-  - Can run parts of the planner to get the rest
+- Notice: if we had these inputs, easy to make any downstream complicated inputs
+  - Can just run (parts of) planner
+  - Making **these inputs** easy is all we have to do
+  - but... these are complicated!
 
 ---
 
@@ -338,6 +342,7 @@ Notes:
 
 - Kent Beck: "Make the change easy (warning: this may be hard), then make the easy change"
   - Cultivate this skill: feels like a cheat code
+  - how to move **fast** with **confidence**
   - The "this may be hard" comes on a spectrum
     - Complicated function inputs tend to live on the harder side
 - So: **how** to "make the change easy"?
@@ -485,7 +490,7 @@ TEST_F(MotionPlanner, PlansLaneChangeAroundSlowVehicle) {
                 .ego_motion = 65 * MPH,
             },
         }
-        .add_track(slow_car)
+        .add_actor(slow_car)
         .run_cycle_through(RANKER);
 
 
@@ -515,7 +520,7 @@ TEST_F(MotionPlanner, PlansLaneChangeAroundSlowVehicle) {
                 .ego_motion = 65 * MPH,
             },
         }
-        .add_track(slow_car)
+        .add_actor(slow_car)
         .run_cycle_through(RANKER);
 
     // Out of scope for this talk...
@@ -550,7 +555,7 @@ TEST_F(MotionPlanner, PlansLaneChangeAroundSlowVehicle) {
                 .ego_motion = 65 * MPH,
             },
         }
-        .add_track(slow_car)
+        .add_actor(slow_car)
         .run_cycle_through(RANKER);
 
     // Out of scope for this talk...
@@ -576,32 +581,6 @@ Notes:
   - Readable: easy to picture
   - Stretch goal: interactive 3D vis
 - (show vis)
-
-
-
-
-
-
-
-
-
-- All planner tests: based on **scene**
-  - Key: describe the **map** (backdrop where scene takes place)
-  - Make variable for lane of interest
-- Slow car: use car "sketcher" (just enough detail, reasonable defaults)
-- Now: build the scene
-  - Constructor params: what you must supply every time
-    - Map, goal, ego path and motion
-  - Setters for everything else (add slow car)
-
-Key points we can already see:
-
-- **Map** is foundational
-- **all** positions described relative to **physically meaningful paths**: no x/y/z/theta
-
-Source code: high callsite readability
-- Can picture scene... but just in case!
-- Stretch goal: Interactive 3D vis
 
 ---
 
@@ -656,9 +635,10 @@ Source code: high callsite readability
 
 Notes:
 
-- Level 1: paths, poses, motions
+- To build: **levels** of solution
+  - Level 3: scene builder
 - Level 2: map abstraction
-- Level 3: scene builder
+- Level 1: paths, poses, motions
 - Level 0?  Any guesses?
 
 ---
@@ -685,10 +665,17 @@ Notes:
 - _At the time:_ no **public** library had these properties
   - So we open sourced it
 - Presented it at CppCon 2023
+  - So: that's level 0...
 
 ---
 
 # Level 1:<br>Poses, Paths, and Motions
+
+Notes:
+
+- Level 1: first _true_ foundational level
+  - Poses, paths, motions
+  - Build everything else on top of
 
 ---
 
@@ -786,11 +773,12 @@ Pose3D pose = get_starting_pose()
 Notes:
 
 - "Pose" means "where": position plus orientation
-- **Core goal**: given _starting_ pose, easy + readable to make _related_ pose
+- **Job**: given _starting_ pose, easy + readable to make _related_ pose
+  - chainable APIs
 - Move fwd
 - Turn, defaults to 90 degrees
 - More complicated motion: constant curvature
-  - Key idea: _chainable_ APIs
+  - Easy to understand how starting pose changes
   - ...where does that "starting pose" come from though?
 
 ---
@@ -806,10 +794,8 @@ Notes:
 
 Notes:
 
-- Ironclad rule: get **poses** from **meaningful paths in scene**
-  - No x/y/z/theta.  Ever!
-    - I will move the origin when you're not looking
-    - Many bad tests will fail; all good tests will still pass
+- **Strong** preference: get pose from **meaningful paths in scene**
+  - Avoid x/y/z/theta: fragile, hard to read
   - Here's a path: right boundary of right lane of road
 - Give it a position, get a pose, move it to where you want
 - Move right
@@ -840,10 +826,11 @@ Notes:
 
   - Good news: real world has this problem too
     - Can use same solution: mile markers
-    - Positions are just labels for points
-    - Can't "add" two positions (like chrono `time_point`)
+    - Positions aren't **exact measurements:** just **labels** for points
     - Subtracting _positions_ gives a _displacement_
       - still _approximately_ correct despite curvature
+    - similar semantics to chrono `time_point`
+      - Can't "add" two positions
   - Now we can appreciate our path type: `Ribbon`
 
 ---
@@ -869,8 +856,7 @@ Notes:
 - Measure along-path displacement, with "geodesic displacement", get just 8.5 meters
   - Paths act as basic "reference frames" for scene
   - For actor: pair **path** with **position**
-  - Other APIs, e.g., curvature, not shown here
-    - (Think of as "spatial derivatives"... if you like)
+    - pairing so useful, it deserves its own type
 
 ---
 
@@ -938,8 +924,6 @@ class RelativePath {
 </div>
 </div>
 <div class="fragment" data-fragment-index="1">
-
-<div>
 
 #### Example API:
 
@@ -1209,9 +1193,9 @@ Ribbon get_flat_ribbon_turning_left(CurvatureD k, Pose3D origin_pose) {
 
 Notes:
 
-- Ribbon uses polymorphism
+- Ribbon, etc. use polymorphism
+  - End users don't see it
   - Interface class w/ pure virtuals
-  - End users don't see polymorphism!
 - shared-ptr-to-const
   - shared-ptr-to-non-const would be hidden global variable :(
   - **value semantics**, size of shared-ptr for any complexity
@@ -1414,6 +1398,7 @@ Notes:
 - Road sketcher: readable synthetic roads
   - Number of lanes is number of times you say "finish lane"
 - That's how you **make** it.  To **use** it...
+  - **Two** ways, depending on what you're doing
 
 ---
 
@@ -1428,10 +1413,12 @@ Notes:
 
 Notes:
 
-- One way: "bucket of well named paths"
+- One role: tests
+  - "bucket of well named paths"
   - Place actors in the scene
   - "nominal path of left lane"
-- But, also need to get real map data to pass functions
+- Other role: libraries
+  - Need real map data to pass functions
   - Map sketch is not a map!
     - It's high level description
   - What's the dependency relationship?
@@ -2266,6 +2253,7 @@ Notes:
   - `accelerating_from`: a motion builder
     - Could you write it?  (Yeah!)
     - Didn't change our car sketcher, but when we wrote this motion builder, it got more powerful!
+    - why to take **`Motion`** in your APIs
 - Now add pedestrian facing the on ramp, 3 m away, stopped.
 - _Can you picture this scene?_
 - Yes, there they are!
@@ -2344,8 +2332,7 @@ struct VisualizeTest {
 
 Notes:
 
-- Source code is as readable as possible... but it's not enough!
-  - Must make it very easy to see the actual, built scene
+- Here's where we're getting vis
   - Here's an example scene we built
 - There's a second argument of _this_ type
 - Use designated initializer: "fail and visualize to" "my test"
@@ -3234,7 +3221,106 @@ Notes:
 - Interfaces way more ergonomic!
   - "Feels like" python style associative container
   - All dispatching happens when program is **built**
-  - Nice container.  How do we fill it?
+  - Nice container...
+  - Before we fill it, one more use case to consider
+
+---
+
+# Testing Fault Conditions
+
+Notes:
+
+- Must make sure planner **detects** faults
+  - and **responds appropriately**
+
+---
+
+## Fault tests: desired syntax
+
+<div class="r-stack nolinenum">
+<div class="fragment fade-out" data-fragment-index="1">
+
+```cpp
+TEST_F(MotionPlanner, CanRunInTest) {
+  const auto road = HighwayMergeWithSubsequentExit{};
+
+  const auto ego_position = merge_completion_position(road) - 300 * m;
+  const auto cycle_result =
+    SceneBuilder{
+      {
+        .map = road,
+        .goal = final_pose(right_lane(road)),
+        .ego_path = {nominal_path(right_lane(road)), ego_position},
+        .ego_motion = 65 * MPH,
+      },
+    }
+
+      .run_cycle_through(RANKER);
+
+  EXPECT_THAT(cycle_result.issues, IsEmpty());
+}
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="1">
+
+```cpp [14,17]
+TEST_F(MotionPlanner, CanRunInTest) {
+  const auto road = HighwayMergeWithSubsequentExit{};
+
+  const auto ego_position = merge_completion_position(road) - 300 * m;
+  const auto cycle_result =
+    SceneBuilder{
+      {
+        .map = road,
+        .goal = final_pose(right_lane(road)),
+        .ego_path = {nominal_path(right_lane(road)), ego_position},
+        .ego_motion = 65 * MPH,
+      },
+    }
+      .add_input_tweak(EGO_POSE, SetLatestAge{STALE_EGO_POSE_THRESHOLD + 1 * ms});
+      .run_cycle_through(RANKER);
+
+  EXPECT_THAT(cycle_result.issues, Contains(Issues::EGO_POSE_LOST));
+}
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="2">
+
+```cpp [14,17]
+TEST_F(MotionPlanner, CanRunInTest) {
+  const auto road = HighwayMergeWithSubsequentExit{};
+
+  const auto ego_position = merge_completion_position(road) - 300 * m;
+  const auto cycle_result =
+    SceneBuilder{
+      {
+        .map = road,
+        .goal = final_pose(right_lane(road)),
+        .ego_path = {nominal_path(right_lane(road)), ego_position},
+        .ego_motion = 65 * MPH,
+      },
+    }
+      .add_input_tweak(EGO_POSE, InvalidateLast{});
+      .run_cycle_through(RANKER);
+
+  EXPECT_THAT(cycle_result.issues, Contains(Issues::EGO_POSE_INVALID));
+}
+```
+
+</div>
+</div>
+
+Notes:
+
+- Here's a simple planner test from before
+  - Let's imagine we stopped getting ego pose messages
+- Add input tweak
+  - ego pose
+  - set latest age 1 ms past threshold
+  - Easy to test that planner detects fault _condition_ appropriately
+  - Need other tests for fault _response_
 
 ---
 
@@ -3276,12 +3362,12 @@ Notes:
 - Two separate questions for each input type: "_in this situation..._"
 - What _times_?
 - What _contents_ at a _given time_?
-  - Separation: important for testing fault conditions
-  - Vanilla SD: "we're in this situation"
-  - _Tweaked_ SD: "we're in this situation, **and**..."
-    - We lost our route
-    - Our pose is invalid
-  - Gotta test what planner does here!
+  - Get a vector of times from first
+  - Call the second once for each time
+  - **Key:** tweaks can apply to set-of-**times**,
+    - **before** they reach the second function
+  - Msg **contents** always accurate for the time
+    - e.g., show where the actor **was** when the stale message came
 
 ---
 
@@ -3354,77 +3440,12 @@ Notes:
 - To be a tweak, type needs two methods
   - times
   - contents
-- Key: **first** choose times, **then** generate message contents
+  - either can be a no-op
 - Examples
 - `SetLatestAge` shifts timestamps (simulate staleness)
 - `DropAll`: no messages (simulate never-arrived)
 - `InvalidateLast` (simulate invalid input)
   - How does this look in real test source code?
-
----
-
-## Tweaks in context
-
-<div class="r-stack nolinenum">
-<div class="fragment fade-out" data-fragment-index="1">
-
-```cpp
-TEST_F(MotionPlanner, CanRunInTest) {
-  const auto road = HighwayMergeWithSubsequentExit{};
-
-  const auto ego_position = merge_completion_position(road) - 300 * m;
-  const auto cycle_result =
-    SceneBuilder{
-      {
-        .map = road,
-        .goal = final_pose(right_lane(road)),
-        .ego_path = {nominal_path(right_lane(road)), ego_position},
-        .ego_motion = 65 * MPH,
-      },
-    }
-
-      .run_cycle_through(RANKER);
-
-  EXPECT_THAT(cycle_result.issues, IsEmpty());
-}
-```
-
-</div>
-<div class="fragment fade-in" data-fragment-index="1">
-
-```cpp [14,17]
-TEST_F(MotionPlanner, CanRunInTest) {
-  const auto road = HighwayMergeWithSubsequentExit{};
-
-  const auto ego_position = merge_completion_position(road) - 300 * m;
-  const auto cycle_result =
-    SceneBuilder{
-      {
-        .map = road,
-        .goal = final_pose(right_lane(road)),
-        .ego_path = {nominal_path(right_lane(road)), ego_position},
-        .ego_motion = 65 * MPH,
-      },
-    }
-      .add_input_tweak(EGO_POSE, SetLatestAge{STALE_EGO_POSE_THRESHOLD + 1 * ms});
-      .run_cycle_through(RANKER);
-
-  EXPECT_THAT(cycle_result.issues, Contains(Issues::EGO_POSE_LOST));
-}
-```
-
-</div>
-</div>
-
-Notes:
-
-- Here's a simple planner test from before
-  - Let's imagine we stopped getting ego pose messages
-- Add input tweak
-  - ego pose
-  - set latest age 1 ms past threshold
-  - Easy to test that planner detects fault _condition_ appropriately
-  - Need other tests for fault _response_
 
 ---
 
