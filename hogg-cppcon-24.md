@@ -256,6 +256,8 @@ Notes:
 
 Notes:
 
+Target: **04:15**
+
 - Example: motion planning component, self driving
   - don't know self driving?  No problem!
   - Learn just enough so anyone can understand the example
@@ -337,6 +339,8 @@ Notes:
 </div>
 
 Notes:
+
+Target: **08:54**
 
 - Kent Beck: "Make the change easy (warning: this may be hard), then make the easy change"
   - Cultivate this habit: feels like a cheat code
@@ -668,6 +672,8 @@ Notes:
 # Level 1:<br>Poses, Paths, and Motions
 
 Notes:
+
+Target: **15:03**
 
 - Level 1: first _true_ foundational level
   - Poses, paths, motions
@@ -1208,6 +1214,8 @@ Notes:
 
 Notes:
 
+Target: **25:32**
+
 - A map is where you get paths that have meaning
 
 ---
@@ -1638,6 +1646,8 @@ Notes:
 # Level 3: Scene Builder
 
 Notes:
+
+Target: **31:52**
 
 - Now we have:
   - user-friendly poses, paths, and motions
@@ -2416,6 +2426,8 @@ Notes:
 
 Notes:
 
+Target: **40:15**
+
 - All our APIs are very high level and intent based
 - Obviously great for writing and reading
 - Consider implications for **maintainability** as code evolves
@@ -2811,6 +2823,8 @@ Notes:
 # Scene builder implementation strategy
 
 Notes:
+
+Target: **44:32**
 
 - Everything so far is "what will users write"
 - But... how does this work?
@@ -3499,6 +3513,8 @@ Notes:
 # Wrapping Up
 
 Notes:
+
+Target: **52:08**
 
 - 2 conclusions, one for each audience
 
