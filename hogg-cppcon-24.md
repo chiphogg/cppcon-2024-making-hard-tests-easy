@@ -24,12 +24,11 @@ Notes:
 Notes:
 
 - Aurora
-  - deliver benefits of self driving, safely, quickly, broadly
+- deliver benefits of self driving, safely, quickly, broadly
   - launching first product _this year_: self-driving trucks, Dallas to Houston
-- Me: Chip Hogg
-  - Almost 4 years at Aurora, on motion planning team, almost 9 in self driving
-  - Main contribution: making good tests easy
-
+  - Me: Chip Hogg
+    - Almost 4 years at Aurora, on motion planning team, almost 9 in self driving
+    - Main contribution: making good tests easy
   - Disclaimer: APIs not exact
     - Goal: whatever communicates **ideas** most clearly
 
@@ -244,7 +243,7 @@ Notes:
   - Example: predict vehicle motion from history
 - Input: changing lanes, accelerating
   - Two bad choices
-    - Realistic data (hard to set up / understand)
+    - Realistic data (hard to set up / understand; fragile)
     - Simple fake data (doesn't test much)
   - How to solve?
     - According to Tolstoy:
@@ -321,7 +320,6 @@ Notes:
       - Any sub-stage
 - Notice: if we had these inputs, easy to make any downstream complicated inputs
   - Can just run (parts of) planner
-  - Making **these inputs** easy is all we have to do
   - but... these are complicated!
 
 ---
@@ -341,10 +339,8 @@ Notes:
 Notes:
 
 - Kent Beck: "Make the change easy (warning: this may be hard), then make the easy change"
-  - Cultivate this skill: feels like a cheat code
+  - Cultivate this habit: feels like a cheat code
   - how to move **fast** with **confidence**
-  - The "this may be hard" comes on a spectrum
-    - Complicated function inputs tend to live on the harder side
 - So: **how** to "make the change easy"?
   - 1. Figure out what "easy" would even look like
     - If you can't, no point in going further
@@ -774,7 +770,7 @@ Notes:
 
 - "Pose" means "where": position plus orientation
 - **Job**: given _starting_ pose, easy + readable to make _related_ pose
-  - chainable APIs
+  - strategy: chainable APIs
 - Move fwd
 - Turn, defaults to 90 degrees
 - More complicated motion: constant curvature
@@ -1204,6 +1200,7 @@ Notes:
   - pass all around program, can't get it wrong
   - don't care about heap costs in tests
 - Implement API functions: delegate
+  - (Wouldn't you like reflection here?)
 
 ---
 
@@ -1408,7 +1405,6 @@ Notes:
 <img src="./figures/map-sketch-deps/deps_0.svg">
 <img class="fragment" src="./figures/map-sketch-deps/deps_1.svg">
 <img class="fragment" src="./figures/map-sketch-deps/deps_2.svg">
-<img class="fragment" src="./figures/map-sketch-deps/deps_3.svg">
 </div>
 
 Notes:
@@ -1417,21 +1413,15 @@ Notes:
   - "bucket of well named paths"
   - Place actors in the scene
   - "nominal path of left lane"
-- Other role: libraries
-  - Need real map data to pass functions
-  - Map sketch is not a map!
-    - It's high level description
+- Other role helps with "real map data"
+  - Need to pass to functions
+  - Map sketch: not a map!
+    - _high level description_
   - What's the dependency relationship?
 - No dependency!  Neither knows about the other
-  - Builder **iterates** over data in map sketch
+  - **Builder Library** is the other role
+  - **iterates** over data in map sketch
   - Builds whatever kind of map data you're making
-- Two separate APIs
-  - In tests, you know all details of map
-    - Use simplest term: "right lane of road" when that's unambiguous
-  - In libs, you must handle all maps
-    - Iterate over lanes
-    - Iterate over regions where properties are piecewise constant
-    - "Clunky yet precise"
   - Some effort to build map data
     - **already have** map data?  Another option...
     - Just lacks human-usable paths
@@ -1557,7 +1547,8 @@ Hwy3LanesWExit::Hwy3LanesWExit() :
   },
   right_{ /* ... */ },
   exit_{ /* ... */ },
-  start_position_{path_length({"a43b8847", "cd3eede8"})}
+  start_position_{
+    path_length({"a43b8847", "cd3eede8"})}
   {}
 ```
 
@@ -1582,7 +1573,8 @@ Hwy3LanesWExit::Hwy3LanesWExit() :
   },
   right_{ /* ... */ },
   exit_{ /* ... */ },
-  start_position_{path_length({"a43b8847", "cd3eede8"})}
+  start_position_{
+    path_length({"a43b8847", "cd3eede8"})}
   {}
 ```
 
@@ -1648,19 +1640,88 @@ Notes:
 Notes:
 
 - Now we have:
-  - _some_ solution for map data that gives meaningful paths
   - user-friendly poses, paths, and motions
-- Time to enable writing real tests!
-  - MP test cases: in terms of _scene_; so, **scene builder**
+  - _some_ solution for map data that gives meaningful paths
+  - Time to enable writing real tests!
+    - MP test cases: in terms of _scene_; so, **scene builder**
 
 ---
 
 ## Scene Builder: Interfaces (core)
 
 <div class="r-stack nolinenum">
-<div class="fragment fade-out" data-fragment-index="2" style="width: 100%;">
+<div style="width: 100%;">
 
 ```cpp
+TEST_F(MotionPlanner, CanRunInTest) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="1" style="width: 100%;">
+
+```cpp [2]
+TEST_F(MotionPlanner, CanRunInTest) {
+  const auto road = HighwayMergeWithSubsequentExit{};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="2" style="width: 100%;">
+
+```cpp [4]
+TEST_F(MotionPlanner, CanRunInTest) {
+  const auto road = HighwayMergeWithSubsequentExit{};
+
+  const auto ego_position = merge_start_position(road) - 65 * m;
+
+
+
+
+
+
+
+
+
+
+
+
+}
+```
+
+</div>
+<div class="fragment fade-in" data-fragment-index="3" style="width: 100%;">
+
+```cpp [5-13]
 TEST_F(MotionPlanner, CanRunInTest) {
   const auto road = HighwayMergeWithSubsequentExit{};
 
@@ -1674,14 +1735,14 @@ TEST_F(MotionPlanner, CanRunInTest) {
 
       },
     }
-      .run_cycle_through(RANKER);
 
-  EXPECT_THAT(cycle_result, ProducesValidPlan());
+
+
 }
 ```
 
 </div>
-<div class="fragment fade-in-then-out" data-fragment-index="2" style="width: 100%;">
+<div class="fragment fade-in" data-fragment-index="4" style="width: 100%;">
 
 ```cpp [8]
 TEST_F(MotionPlanner, CanRunInTest) {
@@ -1697,14 +1758,14 @@ TEST_F(MotionPlanner, CanRunInTest) {
 
       },
     }
-      .run_cycle_through(RANKER);
 
-  EXPECT_THAT(cycle_result, ProducesValidPlan());
+
+
 }
 ```
 
 </div>
-<div class="fragment fade-in-then-out" data-fragment-index="3" style="width: 100%;">
+<div class="fragment fade-in-then-out" data-fragment-index="5" style="width: 100%;">
 
 ```cpp [9]
 TEST_F(MotionPlanner, CanRunInTest) {
@@ -1720,14 +1781,14 @@ TEST_F(MotionPlanner, CanRunInTest) {
 
       },
     }
-      .run_cycle_through(RANKER);
 
-  EXPECT_THAT(cycle_result, ProducesValidPlan());
+
+
 }
 ```
 
 </div>
-<div class="fragment fade-in-then-out" data-fragment-index="4" style="width: 100%;">
+<div class="fragment fade-in-then-out" data-fragment-index="6" style="width: 100%;">
 
 ```cpp [10]
 TEST_F(MotionPlanner, CanRunInTest) {
@@ -1743,14 +1804,14 @@ TEST_F(MotionPlanner, CanRunInTest) {
 
       },
     }
-      .run_cycle_through(RANKER);
 
-  EXPECT_THAT(cycle_result, ProducesValidPlan());
+
+
 }
 ```
 
 </div>
-<div class="fragment fade-in" data-fragment-index="5" style="width: 100%;">
+<div class="fragment fade-in" data-fragment-index="7" style="width: 100%;">
 
 ```cpp [11]
 TEST_F(MotionPlanner, CanRunInTest) {
@@ -1766,19 +1827,14 @@ TEST_F(MotionPlanner, CanRunInTest) {
         .ego_motion = 65 * MPH,
       },
     }
-      .run_cycle_through(RANKER);
 
-  EXPECT_THAT(cycle_result, ProducesValidPlan());
+
+
 }
 ```
 
 </div>
-<div class="fragment fade-in-then-out" data-fragment-index="6">
-  <video style="width: 70%;">
-    <source src="./figures/scene-builder-core/result.webm" type="video/webm">
-  </video>
-</div>
-<div class="fragment fade-in" data-fragment-index="7" style="width: 100%;">
+<div class="fragment fade-in" data-fragment-index="8" style="width: 100%;">
 
 ```cpp
 TEST_F(MotionPlanner, CanRunInTest) {
@@ -1801,17 +1857,30 @@ TEST_F(MotionPlanner, CanRunInTest) {
 ```
 
 </div>
+<div class="fragment fade-in-then-out" data-fragment-index="9">
+  <video style="width: 70%;">
+    <source src="./figures/scene-builder-core/result.webm" type="video/webm">
+  </video>
+</div>
+
+<div class="fragment fade-in" data-fragment-index="10"></div>
+
 </div>
 
 Notes:
 
-- Describing scene: two kinds of inputs: constructor params, and chainable setters
+- Basic example
+- Backdrop: "highway merge, subsequent exit"
+- We're 65 m behind merge start
+- When describing scene, two kinds of inputs:
   - Constructor: things you need every single time
+    - communicate requiredness to users
   - Setters: more optional things
 - Core data: map
 - Goal
 - Ego path
 - Ego motion
+- Run full cycle, expect valid plan
   - Can we picture this scene?
   - In the right lane
   - Merge starts 65 m ahead
@@ -2753,6 +2822,9 @@ Notes:
 <div class="container">
 <div>
 
+<div class="r-stack nolinenum">
+<div>
+
 ```cpp
 struct SceneDescription {
   MapData map;
@@ -2765,18 +2837,24 @@ struct SceneDescription {
 };
 ```
 
-<div class="fragment">
+</div>
+<div class="fragment fade-in-then-out" data-fragment-index="1">
 
-```cpp
-struct Goal {
-  Pose3D start_pose;
-  DisplacementD length;
-  GoalType type;
+```cpp [4]
+struct SceneDescription {
+  MapData map;
+  Goal goal;
+  EgoState ego;
+  std::vector<ActorSketch> actors;
+  std::vector<BlockageSketch> blockages;
+
+  PlannerConfig config;
 };
 ```
 
 </div>
-<div class="fragment">
+</div>
+<div class="fragment" data-fragment-index="1">
 
 ```cpp
 struct EgoState {
@@ -2823,15 +2901,16 @@ SceneBuilder &SceneBuilder::add_actor(
 
 Notes:
 
-- SceneBuilder functions build up a "scene description"
-  - Just a struct to collect hi-level descriptions
-  - We can imagine what some of these nested structs are
-- goal
-- ego state
+- SceneBuilder builds up "scene description"
+  - map, goal, ego, so on
+- Nested
+  - ego:
+    - path, motion
+    - turn signal
 - SB holds SD
 - implementations for fluent APIs: obvious
   - Not super interesting.
-  - How does Scene Description enable running tests?
+  - Here's how it helps
 
 ---
 
@@ -2865,14 +2944,6 @@ struct SceneDescription {
 ```
 
 ```cpp
-struct Goal {
-  Pose3D start_pose;
-  DisplacementD length;
-  GoalType type;
-};
-```
-
-```cpp
 struct EgoState {
   RelativePath path;
   Motion motion;
@@ -2892,14 +2963,6 @@ struct SceneDescription {
   std::vector<BlockageSketch> blockages;
 
   PlannerConfig config;
-};
-```
-
-```cpp [1,5]
-struct Goal {
-  Pose3D start_pose;
-  DisplacementD length;
-  GoalType type;
 };
 ```
 
@@ -2927,14 +2990,6 @@ struct SceneDescription {
 ```
 
 ```cpp [1,5]
-struct Goal {
-  Pose3D start_pose;
-  DisplacementD length;
-  GoalType type;
-};
-```
-
-```cpp [1,5]
 struct EgoState {
   RelativePath path;
   Motion motion;
@@ -2958,14 +3013,6 @@ struct SceneDescription {
 ```
 
 ```cpp [1,5]
-struct Goal {
-  Pose3D start_pose;
-  DisplacementD length;
-  GoalType type;
-};
-```
-
-```cpp [1,5]
 struct EgoState {
   RelativePath path;
   Motion motion;
@@ -2983,22 +3030,21 @@ struct EgoState {
 
 Notes:
 
-- Recall: planner gets input messages (map, route, actors, ...)
-- Modules **publish**, planner **subscribes**
-  - Publish, subscribe.  Pub/sub.
-- They keep producing
-- When cycle starts, each buffer has _messages_, each received at some _timestamp_
-- How could scene description help recreate this situation?
-  - Implementation decomposes perfectly:
-    - For each input topic, **separately**, ask: what messages would I expect to see if I were in this situation?
-- Ego: easy, path and motion
-  - Remember!  Can query scene at near-past times!
-    - So for actors, it's easy to get whole _history_ of messages
-      - Self-consistent!  Velocity, etc.
-- Map: easier, just the map
-- Actors: check the actors, and also get barrels from construction boundaries
-  - Again: self-consistent history
-  - **Task:** build set of timestamped messages; put them on queue
+- Modules **generate** msgs
+- **Publish** to pub/sub
+- Planner **subscribes**
+- **Cycle start**:
+  - each buffer has _msgs_
+  - rcvd at some _timestamp_
+- _have_ scene desc, _need_ to fill buffers
+  - **Take each one separately,** independently
+  - Ask: what would I see, in this spot?
+- ego pose: easy: path and motion
+  - **again:** includes **history** of poses!
+- map is map
+- actors: read actors, get barrels from blockages
+  - we know what data to create
+  - need to **store**
 
 ---
 
@@ -3016,19 +3062,17 @@ Notes:
 
 ```cpp
 struct EgoPoseTopic {
-  using MsgType = localization::proto::Pose;
-};
 
+};
 
 
 struct MapTopic {
-  using MsgType = mapping::proto::Map;
+
 };
 
 
-
 struct ActorsTopic {
-  using MsgType = perception::proto::Actors;
+
 };
 
 
@@ -3041,14 +3085,33 @@ struct ActorsTopic {
 struct EgoPoseTopic {
   using MsgType = localization::proto::Pose;
 };
-constexpr auto EGO_POSE = EgoPoseTopic{};
 
 
 struct MapTopic {
   using MsgType = mapping::proto::Map;
 };
-constexpr auto MAP = MapTopic{};
 
+
+struct ActorsTopic {
+  using MsgType = perception::proto::Actors;
+};
+
+
+```
+
+</div>
+<div class="fragment">
+
+```cpp [4,9,14]
+struct EgoPoseTopic {
+  using MsgType = localization::proto::Pose;
+};
+constexpr auto EGO_POSE = EgoPoseTopic{};
+
+struct MapTopic {
+  using MsgType = mapping::proto::Map;
+};
+constexpr auto MAP = MapTopic{};
 
 struct ActorsTopic {
   using MsgType = perception::proto::Actors;
@@ -3060,19 +3123,6 @@ constexpr auto ACTORS = ActorsTopic{};
 </div>
 <div class="fragment">
 
-#### "All planner inputs"
-
-```cpp
-using PlannerInputs = std::tuple<
-  EgoPoseTopic, MapTopic, ActorsTopic, // ...
->;
-```
-
-</div>
-</div>
-<div>
-<div class="fragment">
-
 #### One topic, one message
 
 ```cpp
@@ -3081,6 +3131,19 @@ struct TimedMessage {
   Timestamp               publish_time;
   typename Topic::MsgType message;
 };
+```
+
+</div>
+</div>
+<div>
+<div class="fragment">
+
+#### "All planner inputs"
+
+```cpp
+using PlannerInputs = std::tuple<
+  EgoPoseTopic, MapTopic, ActorsTopic, // ...
+>;
 ```
 
 </div>
@@ -3126,20 +3189,17 @@ struct TimedMessagesForEachOfImpl<std::tuple<Topics...>> {
 Notes:
 
 - Planner inputs: tag types
-  - Say which msg
+- Say which msg
 - _Canonical instances_
   - Pass to APIs
+- Timed msg for topic: "has ..."
 - Also: tuple of "all planner inputs"
   - reason, programatically, at compile time, about "all inputs"
-  - Now for msg storage at cycle start
-- Timed msg for topic: "has ..."
 - To get **all** msgs, **all** topics, for a cycle
   - "timed messages for each of" planner inputs
   - boils down to tuple of vectors
 - Usual metaprogramming techniques
   - don't worry about details ("pause on youtube" slide)
-  - start with tuple of topics
-  - get tuple of vectors of timed messages on topics
 - has right shape.  Is it usable?
 
 ---
@@ -3222,7 +3282,8 @@ Notes:
   - "Feels like" python style associative container
   - All dispatching happens when program is **built**
   - Nice container...
-  - Before we fill it, one more use case to consider
+  - This "scene msgs" is what scene description fills up
+    - before we see **how**... _one more_ use case
 
 ---
 
@@ -3319,8 +3380,10 @@ Notes:
 - Add input tweak
   - ego pose
   - set latest age 1 ms past threshold
-  - Easy to test that planner detects fault _condition_ appropriately
-  - Need other tests for fault _response_
+- Or, make last msg invalid
+  - expect invalid msg issue
+  - **Point is**: easy to test that planner detects fault _condition_ appropriately
+    - Need _other_ tests for fault _response_
 
 ---
 
@@ -3378,6 +3441,8 @@ Notes:
 
 ```cpp
 struct InputTweak {
+  /* std::variant<
+    EgoPoseTopic, MapTopic, ActorsTopic, ...> */
   VariantFromTuple<PlannerInputs>
     topic;
 
@@ -3385,21 +3450,6 @@ struct InputTweak {
     tweak;
 };
 ```
-
-<div class="fragment fade-in">
-
-#### Interfaces for tweaks:
-
-```cpp
-void apply_to_times(
-  InOut<std::vector<Timestamp>> times);
-
-template <typename Topic>
-void apply_to_contents(
-  InOut<std::vector<TimedMessage<Topic>>> messages);
-```
-
-</div>
 
 </div>
 
@@ -3437,15 +3487,12 @@ Notes:
 - An "input tweak" combines
   - Particular **topic** (first member)
   - Some **change** to msgs (second member)
-- To be a tweak, type needs two methods
-  - times
-  - contents
-  - either can be a no-op
 - Examples
+  - untweaked
 - `SetLatestAge` shifts timestamps (simulate staleness)
 - `DropAll`: no messages (simulate never-arrived)
 - `InvalidateLast` (simulate invalid input)
-  - How does this look in real test source code?
+  - **Point:** Easy to write readable tests for fault handling
 
 ---
 
