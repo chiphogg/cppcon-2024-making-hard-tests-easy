@@ -3567,6 +3567,7 @@ Target: **52:08**
 </span>
 <span><img src="./figures/au.png"></span>
 </div>
+<div class="repo fragment" style="font-size: 80%;">aurora-opensource/au</div>
 </div>
 
 <div class="fragment">
